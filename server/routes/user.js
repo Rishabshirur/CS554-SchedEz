@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { userData } from "../data/index.js";
-import validation from "../../validation.js"
+import validation from '../validation.js'
 import { ObjectId } from "mongodb";
 
 const router = Router();

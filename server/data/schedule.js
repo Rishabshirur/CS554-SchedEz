@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { users } from "../config/mongoCollections.js";
 import { schedules } from "../config/mongoCollections.js";
-import validations from '../../validation.js'
+import validations from '../validation.js'
 
 const createSchedule = async (userId, scheduleName) => {
 
@@ -47,7 +47,7 @@ const createSchedule = async (userId, scheduleName) => {
     return { scheduleId: insertedId };
 }
 
-const getschedule = async (id) => {
+const getscheduleById = async (id) => {
     if (!id || typeof id !== "string" || id.trim().length === 0) {
       throw new Error("Invalid id");
     }
@@ -58,11 +58,11 @@ const getschedule = async (id) => {
     }
   
     const scheduleCollection = await schedules();
-    const schedules = await scheduleCollection.find({ userId: id }).toArray();
-    if (schedules === null) {
+    const schedule = await scheduleCollection.find({ userId: id }).toArray();
+    if (schedule === null) {
       throw new Error("No schedule with that id");
     }
-    return schedules || [];
+    return schedule || [];
   };
 
 const getScheduleByUser = async (userId) => {
@@ -86,7 +86,7 @@ const getScheduleByUser = async (userId) => {
     return schedules;
   };
 
-  const remove = async (scheduleId) => {
+  const removeSchedule = async (scheduleId) => {
     try {
       const scheduleCollection = await schedules();
       const deletionInfo = await scheduleCollection.findOneAndDelete({
@@ -136,4 +136,4 @@ const getScheduleByUser = async (userId) => {
   };
   
 
-export {createSchedule,getschedule, getScheduleByUser,remove,updateSchedule}
+export default {createSchedule,getscheduleById, getScheduleByUser,removeSchedule,updateSchedule}

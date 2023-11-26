@@ -1,8 +1,8 @@
 import { ObjectId } from "mongodb";
 import { users } from "../config/mongoCollections.js";
 import bcrypt from "bcrypt";
-import validation from '../../validation.js'
-import { errorType, errorObject } from "../../validation.js";
+import validation from '../validation.js'
+import { errorType, errorObject } from '../badInputs.js'
 
 const create = async(
     firstName,
