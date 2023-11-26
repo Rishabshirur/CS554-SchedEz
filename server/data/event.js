@@ -1,13 +1,15 @@
 import { ObjectId } from "mongodb";
 import { users } from "../config/mongoCollections.js";
+import { schedules } from "../config/mongoCollections.js";
 import { events } from "../config/mongoCollections.js";
 import validations from '../validation.js'
 
-const createEvent = async (userId, eventData) => {
+const createEvent = async (userId, scheduleId, eventData) => {
     let errors = [];
   
     try {
       userId = validations.checkId(userId, "userId");
+      scheduleId = validations.checkId(scheduleId, "scheduleId");
     } catch (e) {
       errors.push(e?.message);
     }
@@ -37,6 +39,7 @@ const createEvent = async (userId, eventData) => {
     const eventsCollection = await events();
     const newEvent = {
       userId: ObjectId(userId),
+      scheduleId: ObjectId(scheduleId),
       event_name: eventData.eventName,
       start_datetime: new Date(eventData.startDateTime),
       end_datetime: new Date(eventData.endDateTime),
