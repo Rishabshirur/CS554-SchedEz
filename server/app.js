@@ -1,9 +1,11 @@
 import express from "express";
 const app = express();
 import configRoutesFunction from "./routes/index.js";
+import cors from 'cors';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 configRoutesFunction(app);
 
