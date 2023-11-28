@@ -3,60 +3,35 @@ import { users } from "../config/mongoCollections.js";
 import bcrypt from "bcrypt";
 import validation from '../validation.js'
 import { errorType, errorObject } from '../badInputs.js'
+import {
+  getAuth
+} from 'firebase/auth';
 
 const create = async(
-    firstName,
-    lastName,
-    username,
-    email,
-    password,
-    gender,
-    age
+  id
 ) => {
 
     //validating the request body
-  let errors = [];
-  try {
-    firstName = validation.validateName(firstName, "Firstname");
-  } catch (e) {
-    errors.push(e?.message);
-  }
+  // let errors = [];
+  // try {
+  //   name = validation.validateName(name, "Name");
+  // } catch (e) {
+  //   errors.push(e?.message);
+  // }
 
-  try {
-    lastName = validation.validateName(lastName, "Lastname");
-  } catch (e) {
-    errors.push(e?.message);
-  }
+  // try {
+  //   email = validation.checkMailID(email);
+  // } catch (e) {
+  //   errors.push(e?.message);
+  // }
 
-  try {
-    username = validation.checkUsername(username);
-  } catch (e) {
-    errors.push(e?.message);
-  }
-
-  try {
-    email = validation.checkMailID(email);
-  } catch (e) {
-    errors.push(e?.message);
-  }
-
-  try {
-    password = validation.checkPassword(password);
-  } catch (e) {
-    errors.push(e?.message);
-  }
-
-  try {
-    age = validation.checkAge(age);
-  } catch (e) {
-    errors.push(e?.message);
-  }
-
-  try {
-    gender = validation.checkGender(gender)
-  } catch (e) {
-    errors.push(e?.message)
-  }
+  // try {
+  //   password = validation.checkPassword(password);
+  // } catch (e) {
+  //   errors.push(e?.message);
+  // }
+  const auth = getAuth();
+  const user = await auth.getUser(uid)
 
   const userCollection = await users();
   const userNameExits = await userCollection.findOne({ username }, { projection:{ password: 0 } });
@@ -69,18 +44,13 @@ const create = async(
     throw [400, "Error: email already used"];
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
 
   
   // Create a new user object with the hashed password
   const newUser = {
-    firstName,
-    lastName,
-    username,
-    email,
-    password : hashedPassword,
-    gender,
-    age,
+    name: user.displayName,
+    email: user.email,
+    password : user.password,
     events: { attending: [], organizing: []},
     isActive: true
   };
