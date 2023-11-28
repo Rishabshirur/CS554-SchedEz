@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth';
 
 const create = async(
-  id
+  id, username, email
 ) => {
 
     //validating the request body
@@ -30,34 +30,38 @@ const create = async(
   // } catch (e) {
   //   errors.push(e?.message);
   // }
-  const auth = getAuth();
-  const user = await auth.getUser(uid)
-
+  // const auth = getAuth();
+  // const user = await auth.getUser(id)
+  // const user = await auth.currentUser
+  // console.log(user);
+  console.log('Data route');
   const userCollection = await users();
-  const userNameExits = await userCollection.findOne({ username }, { projection:{ password: 0 } });
-  const emailExits = await userCollection.findOne({email}, { projection:{ password: 0 } });
+  const userNameExits = await userCollection.findOne({ username } );
+  const emailExits = await userCollection.findOne({email});
   if (userNameExits) {
-    throw [400, "Error: username already used"];
+    throw "Error: username already used";
   }
 
   if (emailExits) {
-    throw [400, "Error: email already used"];
+    throw "Error: email already used";
   }
 
 
   
   // Create a new user object with the hashed password
   const newUser = {
-    name: user.displayName,
-    email: user.email,
-    password : user.password,
+    name: username,
+    email: email,
+    uid: id,
+    // password : user.password,
     events: { attending: [], organizing: []},
     isActive: true
   };
 
   const insertInfo = await userCollection.insertOne(newUser);
   if (!insertInfo.acknowledged || !insertInfo.insertedId)
-    throw [404, "Could not create new user"];
+    // throw [404, "Could not create new user"];
+    throw new Error("User Not Found");
 
   let userId = insertInfo.insertedId;
   let res = {};
@@ -71,7 +75,8 @@ const getAllUsers = async (queryParams) => {
     queryParams.isActive = queryParams.isActive === 'true';
     const usersResponse = await userCollection.find(queryParams).project({ password: 0 }).toArray();
     if (!usersResponse?.length) {
-      throw [404, "Users not found"];
+      // throw [404, "Users not found"];
+      throw new Error("User Not Found");
     };
     usersResponse?.forEach((item) => {
       item._id = item._id.toString();
