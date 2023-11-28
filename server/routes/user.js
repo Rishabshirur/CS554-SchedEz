@@ -12,6 +12,30 @@ router.get("/all-users", async (req, res) => {
     } catch (e) {
       return res.status(e[0] || 500).send({ message: e[1] || "Internal Server Error" });
     };
+  }).post(async (req,res) => {
+    const response = req.body
+    // try {
+    //   const id = req.body.id;
+    //   if (!ObjectId.isValid(id)) {
+    //     throw new Error('Invalid id');
+    //   }
+    // } catch (error) {
+    //   if (error.message === 'Invalid id') {
+    //     return res.status(400).json({ error: 'Invalid id' });
+    //   } else if (error.message === 'No user with that id') {
+    //     return res.status(404).json({ error: 'No user with that id' });
+    //   } else {
+    //     return res.status(500).json({ error: 'Internal Server Error' });
+    //   }
+    // }
+    console.log("taher");
+    const result = userData.create(response.id)
+    try {
+      if(!result) throw "Unable to add user in MongoDB" 
+    } catch (e) {
+      return res.status(400).json({error: e})
+    }
+    return result;
   });
 
   router.get('/:id', async (req,res) =>{

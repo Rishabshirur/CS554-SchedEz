@@ -11,11 +11,18 @@ import {
     EmailAuthProvider,
     reauthenticateWithCredential
   } from 'firebase/auth';
+  import axios from 'axios'
   
   async function doCreateUserWithEmailAndPassword(email, password, displayName) {
     const auth = getAuth();
-    await createUserWithEmailAndPassword(auth, email, password);
+    await createUserWithEmailAndPassword(auth, email, password)
+    axios.post("http://localhost:3000/user/all-users",{id: auth.currentUser.uid}).then((response)=> {
+      console.log(response);
+    }).catch((error)=> {
+      console.log(error);
+  })
     await updateProfile(auth.currentUser, {displayName: displayName});
+
   }
   
   async function doChangePassword(email, oldPassword, newPassword) {
