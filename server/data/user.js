@@ -5,6 +5,7 @@ import validation from '../validation.js'
 import { errorType, errorObject } from '../badInputs.js'
 
 const create = async(
+    uid,
     firstName,
     lastName,
     username,
@@ -74,6 +75,7 @@ const create = async(
   
   // Create a new user object with the hashed password
   const newUser = {
+    uid,
     firstName,
     lastName,
     username,

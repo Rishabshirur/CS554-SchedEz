@@ -5,6 +5,18 @@ import { ObjectId } from "mongodb";
 
 const router = Router();
 
+router.post('/create-user', async (req, res) => {
+  try {
+    const { uid, firstName, lastName, username, email, password, gender, age } = req.body;
+
+    const newUser = await userData.create(uid, firstName, lastName, username, email, password, gender, age);
+
+    return res.status(201).json({ user: newUser });
+  } catch (e) {
+    return res.status(e[0] || 500).json({ message: e[1] || "Internal Server Error" });
+  }
+});
+
 router.get("/all-users", async (req, res) => {
     try {
       const response = await userData.getAllUsers(req.query);
