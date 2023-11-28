@@ -9,4 +9,8 @@ const setUser = (id, name, email ,events ,isActive) => ({
     }
   });
 
-export default setUser
+  const unsetUser = () => ({
+    type: 'UNSET_USER',
+  });
+
+export default {setUser, unsetUser}

@@ -3,29 +3,30 @@ import {AuthContext} from '../context/AuthContext';
 import {useSelector, useDispatch} from 'react-redux';
 import {getAuth} from 'firebase/auth';
 import axios from 'axios'
-import actions from '../actions.js'
+import actions from '../actions'
 import '../App.css';
 
 function Home() {
   const {currentUser} = useContext(AuthContext);
   const dispatch = useDispatch();
   let auth = getAuth();
-  let currentUserState = useSelector((state) => state.currentUser);
-  // dispatch(actions.setUser(currentUserInfo.id, currentUserInfo.name, currentUserInfo.email ,currentUserInfo.events ,currentUserInfo.isActive))
-  // console.log(currentUser);
-  // console.log(currentUser.currentUserInfo)
-
+  let currentUserState = useSelector((state) => state.userInfo.currentUser);
+  let currentUserInfo;
   useEffect(()=>{
-    let currentUserInfo;
-    async function getUserInfo(params) {
+    const getUserInfo = async () => {
+
+      try{
       currentUserInfo = await axios.get(`http://localhost:3000/user/${auth.currentUser.uid}`); 
-      // console.log(currentUserInfo);
+      if(currentUserInfo){
+        dispatch(actions.setUser(currentUserInfo.data.user.uid, currentUserInfo.data.user.name, currentUserInfo.data.user.email ,currentUserInfo.data.user.events ,currentUserInfo.data.user.isActive)) 
+        }
+      }
+      catch(e){
+        console.error(e);
+      }
     }
+
     getUserInfo();
-    if(currentUserInfo){
-    dispatch(actions.setUser(currentUserInfo.id, currentUserInfo.name, currentUserInfo.email ,currentUserInfo.events ,currentUserInfo.isActive)) }
-    console.log("cheking the state")
-    console.log(currentUserState)
   },[])
 
   return (
@@ -33,7 +34,8 @@ function Home() {
       <h2>
         Hello {currentUser && currentUser.displayName}, this is the Protected
         Home page
-        Name: {currentUser.currentUserInfo}
+        Name: {currentUserState?.name}
+        Email: {currentUserState?.email}
       </h2>
     </div>
   );

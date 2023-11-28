@@ -1,23 +1,22 @@
 
 const initalState = {
-    
     currentUser: {
-    id: null,
-    name: null,
-    email: null,
+    id: '',
+    name: '',
+    email: '',
     events: [],
-    isActive: null }
+    isActive: false 
+  },
 };
 
-  let copyState = null;
-  let index = 0;
+  // let copyState = null;
+  // let index = 0;
   
-  const userReducer = (state = initalState, action) => {
+  const userInfo = (state = initalState, action) => {
     const {type, payload} = action;
   
     switch (type) {
       case 'SET_USER':
-        console.log('payload', payload);
         return {
           ...state,
           currentUser: {
@@ -26,7 +25,19 @@ const initalState = {
             email: payload.email,
             events: payload.events,
             isActive: payload.isActive
-          }
+          },
+    };
+
+    case 'UNSET_USER':
+        return {
+          ...state,
+          currentUser: {
+            id: '',
+            name: '',
+            email: '',
+            events: [],
+            isActive: false
+          },
     };
       default:
         return state;  
@@ -34,4 +45,4 @@ const initalState = {
 
 }
 
-    export default userReducer
+export default userInfo

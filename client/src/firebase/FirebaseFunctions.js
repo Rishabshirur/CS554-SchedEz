@@ -72,11 +72,6 @@ async function doCreateUserWithEmailAndPassword(email, password, displayName) {
         uuid = userID.user.uid;
         console.log(uuid);
     });
-    const currentUserInfo = await axios.get(`http://localhost:3000/user/${uuid}`);
-    console.log("Logging in current user")
-    await updateProfile(auth.currentUser, { currentUserInfo });
-    // const dispatch = useDispatch();
-    // dispatch(actions.setUser(currentUserInfo.id, currentUserInfo.name, currentUserInfo.email ,currentUserInfo.events ,currentUserInfo.isActive))
   }
   
   async function doSocialSignIn() {
