@@ -12,10 +12,20 @@ import {
     reauthenticateWithCredential
   } from 'firebase/auth';
   
+
   async function doCreateUserWithEmailAndPassword(email, password, displayName) {
     const auth = getAuth();
-    await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(auth.currentUser, {displayName: displayName});
+  
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      const uid = userCredential.user.uid;
+      console.log("THE REAL UID",uid);
+  
+      await updateProfile(auth.currentUser, { displayName });
+    } catch (error) {
+      console.error(error);
+    }
   }
   
   async function doChangePassword(email, oldPassword, newPassword) {
