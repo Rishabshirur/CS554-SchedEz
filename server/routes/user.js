@@ -12,7 +12,9 @@ router.get("/all-users", async (req, res) => {
     } catch (e) {
       return res.status(e[0] || 500).send({ message: e[1] || "Internal Server Error" });
     };
-  }).post(async (req,res) => {
+  })
+  
+router.post("/all-users", async (req,res) => {
     const response = req.body
     // try {
     //   const id = req.body.id;
@@ -28,22 +30,26 @@ router.get("/all-users", async (req, res) => {
     //     return res.status(500).json({ error: 'Internal Server Error' });
     //   }
     // }
-    console.log("taher");
-    const result = userData.create(response.id)
+    console.log("Route Hitting");
+    
     try {
-      if(!result) throw "Unable to add user in MongoDB" 
+      const result = await userData.create(response.id, response.username, response.email)
+      if(!result){
+        return res.status(500).json({error: "Unable to add user in MongoDB"})
+      }  
+      // "Unable to add user in MongoDB" 
+      return res.status(200).json(result);
     } catch (e) {
       return res.status(400).json({error: e})
     }
-    return result;
   });
 
   router.get('/:id', async (req,res) =>{
     try {
       const id = req.params.id;
-      if (!ObjectId.isValid(id)) {
-        throw new Error('Invalid id');
-      }
+      // if (!ObjectId.isValid(id)) {
+      //   throw new Error('Invalid id');
+      // }
       const user = await userData.get(id);
       console.log(user);
       if(!user){

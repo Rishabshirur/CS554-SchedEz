@@ -17,11 +17,15 @@ import {BrowserRouter} from 'react-router-dom';
 
 import fbconfig from './firebase/FirebaseConfig';
 import {initializeApp} from 'firebase/app';
+import {Provider} from 'react-redux';
+import store from './store';
 
 const app = initializeApp(fbconfig);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
+  <Provider store={store}>
   <BrowserRouter>
     <App />
   </BrowserRouter>
+  </Provider>
 );
