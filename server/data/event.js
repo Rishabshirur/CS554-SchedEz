@@ -3,21 +3,21 @@ import { users } from "../config/mongoCollections.js";
 import { schedules } from "../config/mongoCollections.js";
 import { events } from "../config/mongoCollections.js";
 import validations from '../validation.js'
-
-const createEvent = async (userId, scheduleId, eventData) => {
+const createEvent = async (userId, eventData) => {
+// const createEvent = async (userId, scheduleId, eventData) => {
     let errors = [];
   
     try {
-      userId = validations.checkId(userId, "userId");
-      scheduleId = validations.checkId(scheduleId, "scheduleId");
+      // userId = validations.checkId(userId, "userId");
+      // scheduleId = validations.checkId(scheduleId, "scheduleId");
     } catch (e) {
       errors.push(e?.message);
     }
   
     try {
-      validations.checkString(eventData.eventName, "Event Name");
-     //do validation for other inputs
-      validations.checkString(eventData.classification, "Classification");
+    //   validations.checkString(eventData.eventName, "Event Name");
+    //  //do validation for other inputs
+    //   validations.checkString(eventData.classification, "Classification");
     } catch (e) {
       errors.push(e?.message);
     }
@@ -26,34 +26,47 @@ const createEvent = async (userId, scheduleId, eventData) => {
       throw [400, errors];
     }
   
-    const userCollection = await users();
-    const user = await userCollection.findOne(
-      { _id: new ObjectId(userId) },
-      { password: 0 }
-    );
-  
-    if (!user) {
-      throw [404, "User not found with this userId"];
-    }
+    
+    console.log("in data events")
+    // if (!user) {
+    //   throw [404, "User not found with this userId"];
+    // }
   
     const eventsCollection = await events();
     const newEvent = {
-      userId: ObjectId(userId),
-      scheduleId: ObjectId(scheduleId),
+      // userId: new ObjectId(userId),
+      userId: userId,
+      // scheduleId: new ObjectId(scheduleId),
       event_name: eventData.eventName,
-      start_datetime: new Date(eventData.startDateTime),
-      end_datetime: new Date(eventData.endDateTime),
-      color_code: eventData.colorCode,
-      classification: eventData.classification,
+      // start_datetime: new Date(eventData.start_datetime),
+      // end_datetime: new Date(eventData.end_datetime),
+      start_datetime: eventData.startDateTime,
+      end_datetime: eventData.endDateTime,
+      color_code: eventData.color,
+      classification: eventData.desc,
       created_at: new Date(),
       updated_at: new Date(),
     };
+    
   
     const insert = await eventsCollection.insertOne(newEvent);
-  
     if (!insert.acknowledged || !insert.insertedId) {
       throw [404, "Could not create new event"];
     }
+    const userCollection = await users();
+    let user = await userCollection.findOne(
+      { uid: userId}
+    );
+    
+    console.log(user)
+    user.events.organizing.push(insert.insertedId.toString())
+    const updatedInfo = await userCollection.findOneAndUpdate({ uid: userId }, {
+      $set: user
+    }, {returnDocument: 'after'});
+    if (updatedInfo.lastErrorObject.n === 0) {
+      throw  'Failed to update the user collection';
+    }
+    
   
     const insertedId = insert.insertedId.toString();
     return { eventId: insertedId };

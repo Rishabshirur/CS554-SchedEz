@@ -5,6 +5,7 @@ import {getAuth} from 'firebase/auth';
 import axios from 'axios'
 import actions from '../actions'
 import '../App.css';
+import EventForm from './EventForm';
 
 function Home() {
   const {currentUser} = useContext(AuthContext);
@@ -37,6 +38,7 @@ function Home() {
         Name: {currentUserState?.name}
         Email: {currentUserState?.email}
       </h2>
+      <EventForm></EventForm>
     </div>
   );
 }
