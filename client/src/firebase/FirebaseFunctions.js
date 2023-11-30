@@ -50,6 +50,7 @@ async function doCreateUserWithEmailAndPassword(email, password, displayName) {
     });
 
     console.log("User created and profile updated successfully.");
+    await doSignOut();
   } catch (error) {
     console.error("Error creating user:", error.message);
   }

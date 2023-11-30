@@ -10,15 +10,15 @@ router.post("/", async (req, res) => {
     const newEvent = req.body;
   
     try {
-      newEvent.userId = validations.checkId(newEvent.userId, "userId");
-      newEvent.event_name = validations.checkString(newEvent.event_name, "Event Name");
-      newEvent.start_datetime = validations.checkDateTime(newEvent.start_datetime, "Start Date and Time");
-      newEvent.end_datetime = validations.checkDateTime(newEvent.end_datetime, "End Date and Time");
-      newEvent.color_code = validations.checkString(newEvent.color_code, "Color Code");
-      newEvent.classification = validations.checkString(newEvent.classification, "Classification");
-  
-      const createdEvent = await eventData.createEvent(eventData.userId,eventData);
-  
+      // newEvent.userId = validations.checkId(newEvent.userId, "userId");
+      // newEvent.event_name = validations.checkString(newEvent.event_name, "Event Name");
+      // newEvent.start_datetime = validations.checkDateTime(newEvent.start_datetime, "Start Date and Time");
+      // newEvent.end_datetime = validations.checkDateTime(newEvent.end_datetime, "End Date and Time");
+      // newEvent.color_code = validations.checkString(newEvent.color_code, "Color Code");
+      // newEvent.classification = validations.checkString(newEvent.classification, "Classification");
+      console.log(newEvent)
+      const createdEvent = await eventData.createEvent(newEvent.userId,newEvent.obj);
+      console.log(createdEvent)
       return res.json({ event: createdEvent });
     } catch (e) {
       const msg = e?.[1] || e?.message;
