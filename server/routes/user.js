@@ -47,9 +47,9 @@ router.post("/all-users", async (req,res) => {
   router.get('/:id', async (req,res) =>{
     try {
       const id = req.params.id;
-      if (!ObjectId.isValid(id)) {
-        throw new Error('Invalid id');
-      }
+      // if (!ObjectId.isValid(id)) {
+      //   throw new Error('Invalid id');
+      // }
       const user = await userData.get(id);
       console.log(user);
       if(!user){

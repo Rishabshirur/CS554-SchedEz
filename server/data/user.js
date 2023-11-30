@@ -91,12 +91,12 @@ const getAllUsers = async (queryParams) => {
     }
      id = id.trim();
   
-     if (!ObjectId.isValid(id)){
-      throw new Error ('invalid object ID');
-     } 
+    //  if (!ObjectId.isValid(id)){
+    //   throw new Error ('invalid object ID');
+    //  } 
      const userCollection = await users();
   
-     const user = await userCollection.findOne({_id: new ObjectId(id)},{projection:{_id:1,firstName:1}});
+     const user = await userCollection.findOne({uid: id});
      
      if(user === null){
       throw new Error("No user with that id");

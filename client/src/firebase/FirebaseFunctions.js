@@ -12,6 +12,10 @@ import {
     reauthenticateWithCredential
   } from 'firebase/auth';
   import axios from 'axios'
+  import {useContext} from 'react';
+import {AuthContext} from '../context/AuthContext';
+import {useSelector, useDispatch} from 'react-redux';
+import actions from '../actions.js'
   
 //   async function doCreateUserWithEmailAndPassword(email, password, displayName) {
 //     const auth = getAuth();
@@ -63,8 +67,9 @@ async function doCreateUserWithEmailAndPassword(email, password, displayName) {
   
   async function doSignInWithEmailAndPassword(email, password) {
     let auth = getAuth();
+    var uuid;
     await signInWithEmailAndPassword(auth, email, password).then((userID)=> {
-        const uuid = userID.user.uid;
+        uuid = userID.user.uid;
         console.log(uuid);
     });
   }
