@@ -107,6 +107,19 @@ router.post("/", async (req, res) => {
     }
   });
 
+  router.get('/:userId/filter/colorCode/:colorCode', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const colorCode = req.params.colorCode;
+  
+      const events = await eventData.getEventsByColorCodeperUser(userId, colorCode);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by color code:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
   router.get('/filter/startDate/:startDate', async (req, res) => {
     try {
       const startDate = req.params.startDate;
@@ -136,6 +149,19 @@ router.post("/", async (req, res) => {
       res.json({ events });
     } catch (error) {
       console.error('Error filtering events by classification:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  router.get('/:userId/filter/classification/:classification', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const classification = req.params.classification;
+  
+      const events = await eventData.getEventsByClassificationByUser(userId, classification);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by color code:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
