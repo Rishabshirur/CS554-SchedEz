@@ -83,33 +83,23 @@ const createEvent = async (userId, eventData) => {
     }
   
     const eventsCollection = await events();
-    const event = await eventsCollection.find({ userId: id }).toArray();
-    if (event === null) {
+    const eventDetail = await eventsCollection.find({ _id: new ObjectId(id) }).toArray();
+    if (eventDetail === null) {
       throw new Error("No schedule with that id");
     }
-    return event || [];
+    return eventDetail || [];
   };
   
 
-  const getEventsByUser = async (userId) => {
-    let errors = [];
-    try {
-      userId = validations.checkId(userId, "userId");
-    } catch (e) {
-      errors.push(e?.message);
-    }
-  
-    if (errors.length > 0) {
-      throw [400, errors];
-    }
-  
+  const getEventsByUser = async (userId) => { 
     const eventsCollection = await events();
-    const events = await eventsCollection.find({ userId: userId }).toArray();
+    const eventsList = await eventsCollection.find({ userId: userId }).toArray();
+    console.log(eventsList)
   
-    if (events.length === 0) {
+    if (eventsList.length === 0) {
       throw [404,"No events found for this user"];
     }
-    return events;
+    return eventsList;
   };
 
   const removeEvent = async (eventId) => {

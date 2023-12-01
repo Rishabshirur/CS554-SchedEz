@@ -39,6 +39,19 @@ router.post("/", async (req, res) => {
       return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
     }
   });
+
+  router.get("/detail/:id", async (req, res) => {
+    const userId = req.params.id;
+  
+    try {
+      const userEvents = await eventData.getEventById(userId);
+  
+      return res.status(200).json({ events: userEvents });
+    } catch (e) {
+      const msg = e?.[1] || e?.message;
+      return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
+    }
+  });
   
 
   router.patch("/:eventId", async (req, res) => {

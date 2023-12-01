@@ -6,6 +6,7 @@ import axios from 'axios'
 import actions from '../actions'
 import '../App.css';
 import EventForm from './EventForm';
+import { Link } from 'react-router-dom';
 
 function Home() {
   const {currentUser} = useContext(AuthContext);
@@ -39,6 +40,7 @@ function Home() {
         Email: {currentUserState?.email}
       </h2>
       <EventForm></EventForm>
+      <Link to="/all-events">View My All Events</Link>
     </div>
   );
 }
