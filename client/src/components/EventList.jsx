@@ -4,8 +4,9 @@ import { useSelector } from 'react-redux';
 import { getAuth } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 
-function EventList() {
+function EventList(filteredEvents) {
   const [events, setEvents] = useState([]);
+  
   let currentUserState = useSelector((state) => state.userInfo.currentUser);
   let currentUserInfo;
   let auth = getAuth();
@@ -33,7 +34,7 @@ function EventList() {
     <div>
       <h2>Event List</h2>
       <ul>
-        {events.map((event) => (
+        {filteredEvents.events.map((event) => (
           <li key={event._id}>
             <Link to={`/event/${event._id}`}>
               <strong>{event.event_name}</strong> - {formatDate(event.start_datetime)}
