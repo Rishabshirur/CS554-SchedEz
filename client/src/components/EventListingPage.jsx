@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import axios from 'axios';
 import EventList from './EventList';
 import { getAuth } from 'firebase/auth';
+import './component.css'
 
 function EventListingPage() {
   const currentUser = useSelector((state) => state.userInfo.currentUser);
