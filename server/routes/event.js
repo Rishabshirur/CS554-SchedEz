@@ -96,4 +96,48 @@ router.post("/", async (req, res) => {
     }
   });
 
+  router.get('/filter/colorCode/:colorCode', async (req, res) => {
+    try {
+      const colorCode = req.params.colorCode;
+      const events = await eventData.getEventsByColorCode(colorCode);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by color code:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  router.get('/filter/startDate/:startDate', async (req, res) => {
+    try {
+      const startDate = req.params.startDate;
+      const events = await eventData.getEventsByStartDate(startDate);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by start date:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
+  router.get('/filter/endDate/:endDate', async (req, res) => {
+    try {
+      const endDate = req.params.endDate;
+      const events = await eventData.getEventsByEndDate(endDate);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by end date:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
+  router.get('/filter/classification/:classification', async (req, res) => {
+    try {
+      const classification = req.params.classification;
+      const events = await eventData.getEventsByClassification(classification);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by classification:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
 export default router
