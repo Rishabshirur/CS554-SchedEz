@@ -256,6 +256,17 @@ const createEvent = async (userId, eventData) => {
   return eventsByColorCode;
 };
 
+const getEventsByColorCodeperUser = async (userId, colorCode) => {
+  const eventsCollection = await events();
+
+  const eventsByColorCode = await eventsCollection.find({
+    userId: userId,
+    color_code: colorCode,
+  }).toArray();
+
+  return eventsByColorCode;
+};
+
    const getEventsByStartDate = async (startDate) => {
  
     const eventsCollection = await events();
@@ -293,7 +304,19 @@ const createEvent = async (userId, eventData) => {
   return eventByClassification;
 };
 
+const getEventsByClassificationByUser = async (userId,classification) => {
+ 
+  const eventsCollection = await events();
+
+  const eventByClassification = await eventsCollection.find({
+    userId : userId,
+    classification : classification,
+  }).toArray();
+
+  return eventByClassification;
+};
+
 
 
   export default {createEvent,getEventById,getEventsByUser,removeEvent,updateEvent,getEventsBySchedule,
-  checkEventAvailability,getEventsByDateRange,getEventsByColorCode,getEventsByStartDate,getEventsByEndDate,getEventsByClassification}
+  checkEventAvailability,getEventsByDateRange,getEventsByColorCode,getEventsByStartDate,getEventsByEndDate,getEventsByClassification,getEventsByColorCodeperUser,getEventsByClassificationByUser}
