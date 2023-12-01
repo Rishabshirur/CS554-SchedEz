@@ -245,4 +245,55 @@ const createEvent = async (userId, eventData) => {
   
 
 
-  export default {createEvent,getEventById,getEventsByUser,removeEvent,updateEvent,getEventsBySchedule,checkEventAvailability,getEventsByDateRange}
+ const getEventsByColorCode = async (colorCode) => {
+
+  const eventsCollection = await events();
+
+  const eventsByColorCode = await eventsCollection.find({
+    color_code: colorCode,
+  }).toArray();
+
+  return eventsByColorCode;
+};
+
+   const getEventsByStartDate = async (startDate) => {
+ 
+    const eventsCollection = await events();
+
+    const eventsByStartDate= await eventsCollection.find({
+    start_datetime: { $gte: new Date(startDate) },
+  }).toArray();
+
+  return eventsByStartDate;
+};
+
+
+ const getEventsByEndDate = async (endDate) => {
+  console.log('Start Date:', startDate);
+  
+  const eventsCollection = await events();
+
+  const eventByEndDate = await eventsCollection.find({
+    end_datetime: { $lte: new Date(endDate) },
+  }).toArray();
+
+  return eventByEndDate;
+};
+
+
+
+ const getEventsByClassification = async (classification) => {
+ 
+  const eventsCollection = await events();
+
+  const eventByClassification = await eventsCollection.find({
+    classification,
+  }).toArray();
+
+  return eventByClassification;
+};
+
+
+
+  export default {createEvent,getEventById,getEventsByUser,removeEvent,updateEvent,getEventsBySchedule,
+  checkEventAvailability,getEventsByDateRange,getEventsByColorCode,getEventsByStartDate,getEventsByEndDate,getEventsByClassification}
