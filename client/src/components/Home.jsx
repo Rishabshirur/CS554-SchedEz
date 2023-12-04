@@ -41,6 +41,8 @@ function Home() {
       </h2>
       <EventForm></EventForm>
       <Link to="/all-events">View My All Events</Link>
+      <br/>
+      <Link to="/events-today">View Today's Events</Link>
     </div>
   );
 }

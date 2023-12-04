@@ -49,6 +49,7 @@ import PrivateRoute from './components/PrivateRoute';
 import EventList from './components/EventList';
 import EventListingPage from './components/EventListingPage';
 import EventDetail from './components/EventDetail';
+import EventsToday from './components/EventsToday';
 function App() {
   return (
     <AuthProvider>
@@ -68,6 +69,7 @@ function App() {
           <Route path='/signup' element={<SignUp />} />
           <Route path='/all-events' element= {<EventListingPage/>} />
           <Route path="/event/:eventId" element={<EventDetail/>} />
+          <Route path='/events-today' element={<EventsToday/>}/>
         </Routes>
       </div>
     </AuthProvider>
