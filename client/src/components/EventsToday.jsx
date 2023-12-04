@@ -4,9 +4,8 @@ import { useSelector } from 'react-redux';
 import { getAuth } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 
-function EventList(filteredEvents) {
+function EventsToday() {
   const [events, setEvents] = useState([]);
-  
   let currentUserState = useSelector((state) => state.userInfo.currentUser);
   let currentUserInfo;
   let auth = getAuth();
@@ -15,8 +14,11 @@ function EventList(filteredEvents) {
     const fetchEvents = async () => {
       try {
         currentUserInfo = await axios.get(`http://localhost:3000/event/${auth.currentUser.uid}`);
-        setEvents(currentUserInfo.data.events);
-        console.log(currentUserInfo.data.events);
+        const todayEvents = currentUserInfo.data.events.filter((event) =>
+        isEventActiveToday(event)
+        );
+        setEvents(todayEvents);
+        console.log(todayEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
       }
@@ -31,14 +33,35 @@ function EventList(filteredEvents) {
     return date.toLocaleDateString('en-US', options);
   };
 
+  // to check if event is active today
+  const isEventActiveToday = (event) => {
+    const today = new Date();
+    const startDate = new Date(event.start_datetime);
+    const endDate = new Date(event.end_datetime);
+
+    // to check if event is active only
+    // return today >= startDate && today <= endDate;
+    return (
+        (today.getFullYear() === startDate.getFullYear() &&
+          today.getMonth() === startDate.getMonth() &&
+          today.getDate() === startDate.getDate()) ||
+        (today.getFullYear() === endDate.getFullYear() &&
+          today.getMonth() === endDate.getMonth() &&
+          today.getDate() === endDate.getDate()) ||
+        (today >= startDate && today <= endDate)
+      );
+  };
+
   return (
     <div>
-      <h2>Event List</h2>
+      <h2>Today's Events</h2>
       <ul>
-        {filteredEvents.events.map((event) => (
+        {events.map((event) => (
           <li key={event._id}>
             <Link to={`/event/${event._id}`}>
               <strong>{event.event_name}</strong> - {formatDate(event.start_datetime)}
+              {' to '}
+              {formatDate(event.end_datetime)}
             </Link>
           </li>
         ))}
@@ -47,5 +70,4 @@ function EventList(filteredEvents) {
   );
 }
 
-
-export default EventList;
+export default EventsToday;
