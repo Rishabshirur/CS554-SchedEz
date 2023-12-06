@@ -7,6 +7,8 @@ import actions from '../actions'
 import '../App.css';
 import EventForm from './EventForm';
 import { Link } from 'react-router-dom';
+// import Event from '../../../server/data/event';
+import EventCalendar from './EventCalendar';
 
 function Home() {
   const {currentUser} = useContext(AuthContext);
@@ -43,6 +45,8 @@ function Home() {
       <Link to="/all-events">View My All Events</Link>
       <br/>
       <Link to="/events-today">View Today's Events</Link>
+      <br/>
+      <EventCalendar/>
     </div>
   );
 }
