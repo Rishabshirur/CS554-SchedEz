@@ -20,8 +20,9 @@ dayjs.extend(utc);
 dayjs.extend(timezone); 
 function EventForm() {
   dayjs.tz.setDefault('America/New_York');
-  const [startDateTime, setStartDateTime] = React.useState(dayjs.tz('2022-04-17T15:30', 'America/New_York'));
-  const [endDateTime, setEndDateTime] = React.useState(dayjs.tz('2022-04-17T15:30', 'America/New_York'));
+  const [startDateTime, setStartDateTime] = React.useState(dayjs().tz('America/New_York'));
+  const [endDateTime, setEndDateTime] = React.useState(dayjs().tz('America/New_York'));
+  const [errorMessage, setErrorMessage] = useState('');
   const [eventData, setEventData] = useState({
     eventName: '',
     dateTime: new Date(), // Initialize with the current date and time
@@ -58,6 +59,11 @@ function EventForm() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (!endDateTime.isAfter(startDateTime)) {
+      console.error('End date must be greater than start date');
+      setErrorMessage('End date must be strictly greater than start date.');
+      return;
+    }
     let obj={
       eventName,
       desc,
@@ -87,6 +93,12 @@ function EventForm() {
       // dispatch(actions.addEvent(response.data.event));
      
       // Clear form data
+      setEventName('');
+      setDesc('');
+      setStartDateTime(dayjs().tz('America/New_York'));
+      setEndDateTime(dayjs().tz('America/New_York'));
+      setColor('');
+      setErrorMessage('');
       setEventData({
         eventName: '',
         dateTime: '',
@@ -100,6 +112,7 @@ function EventForm() {
   return (
     <div>
       <h2>Create Event</h2>
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <form onSubmit={handleFormSubmit}>
         {/* Form fields for event details */}
         <TextField
@@ -153,8 +166,6 @@ function EventForm() {
           <MenuItem value={"Yellow"}>Yellow</MenuItem>
         </Select>
 
-
-        {/* Form field for description */}
         <TextField
           type="text"
           name="description"
