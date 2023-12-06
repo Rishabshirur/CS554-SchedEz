@@ -49,3 +49,4 @@ function EventList(filteredEvents) {
 
 
 export default EventList;
+
