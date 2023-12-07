@@ -85,26 +85,37 @@ const getAllUsers = async (queryParams) => {
   };
 
   const get = async (id) => {
-
     if (!id || typeof id !== "string" || id.trim().length === 0) {
       throw new Error("Invalid id");
     }
-     id = id.trim();
+    id = id.trim();
   
-    //  if (!ObjectId.isValid(id)){
-    //   throw new Error ('invalid object ID');
-    //  } 
-     const userCollection = await users();
+    try {
+      // Check if user with the given ID is cached in Redis
+      const isCached = await client.exists(`user:${id}`);
+      if (isCached) {
+        const cachedUser = await client.get(`user:${id}`);
+        return JSON.parse(cachedUser);
+      }
   
-     const user = await userCollection.findOne({uid: id});
-     
-     if(user === null){
-      throw new Error("No user with that id");
-     }
+      const userCollection = await users();
   
-     user._id = user._id.toString();
-     return user
-  }
+      const user = await userCollection.findOne({ uid: id });
+  
+      if (user === null) {
+        throw new Error("No user with that id");
+      }
+  
+      // Cache the fetched user in Redis
+      await client.set(`user:${id}`, JSON.stringify(user));
+  
+      user._id = user._id.toString();
+      return user;
+    } catch (error) {
+      throw new Error(error.message || "Error fetching user");
+    }
+  };
+  
 
   const remove = async (id) => {
     if (!id || typeof id !== "string" || id.trim().length === 0) {
