@@ -130,18 +130,14 @@ const getAllUsers = async (queryParams) => {
   };
 
   const update = async(id, userObj) => {
-    const userId = validation.checkId(id)
-    let userInfo = validateUpdateUser(userObj)
-    delete userInfo._id
-  
+    const userId = id
+    let userInfo = validation.validateUpdateUser(userObj)
     const usersCol = await users();
-    if (userInfo.password) {
-      const newPassword = await bcrypt.hash(userInfo.password, 10);
-      userInfo = { ...userInfo, password: newPassword }
-    }
-    
-    const updatedInfo = await usersCol.findOneAndUpdate({ _id: new ObjectId(userId) }, {
-      $set: userInfo
+    const myUserInfo = await usersCol.findOne({uid: userId})
+    myUserInfo.name = userInfo.username
+    myUserInfo.email = userInfo.email
+    const updatedInfo = await usersCol.findOneAndUpdate({ uid: userId }, {
+      $set: myUserInfo
     }, {returnDocument: 'after'});
     if (updatedInfo.lastErrorObject.n === 0) {
       throw errorObject(errorType.BAD_INPUT, 'Failed to update the profile');
@@ -149,7 +145,7 @@ const getAllUsers = async (queryParams) => {
     updatedInfo.value._id = updatedInfo.value._id.toString();
     
     const user = updatedInfo.value
-    delete user.password
+    
     return user;
   };
 

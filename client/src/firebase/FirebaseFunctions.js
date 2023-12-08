@@ -9,7 +9,8 @@ import {
     GoogleAuthProvider,
     sendPasswordResetEmail,
     EmailAuthProvider,
-    reauthenticateWithCredential
+    reauthenticateWithCredential,
+    updateEmail
   } from 'firebase/auth';
   import axios from 'axios'
   import {useContext} from 'react';
@@ -55,7 +56,28 @@ async function doCreateUserWithEmailAndPassword(email, password, displayName) {
     console.error("Error creating user:", error.message);
   }
 }
-  
+
+async function updateUserProfile(email, displayName) {
+  const auth = getAuth();
+
+  try {
+    // Update user profile
+    await updateProfile(auth.currentUser, { displayName: displayName });
+    // await updateEmail(auth.currentUser, email);
+
+    // // Post user data to your server
+    // await axios.post("http://localhost:3000/user/all-users", {
+    //   id: user.uid,
+    //   username: user.displayName,
+    //   email: user.email
+    // });
+
+    console.log("User profile updated successfully.");
+  } catch (error) {
+    console.error("Error creating user:", error.message);
+  }
+}
+
   async function doChangePassword(email, oldPassword, newPassword) {
     const auth = getAuth();
     let credential = EmailAuthProvider.credential(email, oldPassword);
@@ -97,5 +119,6 @@ async function doCreateUserWithEmailAndPassword(email, password, displayName) {
     doSignInWithEmailAndPassword,
     doPasswordReset,
     doSignOut,
-    doChangePassword
+    doChangePassword,
+    updateUserProfile
   };
