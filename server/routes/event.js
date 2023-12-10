@@ -55,9 +55,9 @@ router.post("/", async (req, res) => {
   
 
   router.patch("/:eventId", async (req, res) => {
-    const eventId = req.params.eventId;
+    let eventId = req.params.eventId;
     const updatedData = req.body;
-  
+
     try {
       eventId = validations.checkId(eventId, "eventId");
   

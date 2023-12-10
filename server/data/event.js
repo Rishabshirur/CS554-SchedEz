@@ -128,18 +128,23 @@ const createEvent = async (userId, eventData) => {
       if (!existingEvent) {
         throw new Error(`Event not found with id ${eventId}`);
       }
-  
-      const updatedEvent = {
-        ...existingEvent,
-        ...updatedData,
-        updated_at: new Date(),
-      };
-  
+     
+      let updatedEvent = {};
+
+      (updatedData.event_name) ? (updatedEvent.event_name = updatedData.event_name) : (updatedEvent.event_name = existingEvent.event_name);
+      (updatedData.start_datetime) ? (updatedEvent.start_datetime = updatedData.start_datetime) : (updatedEvent.start_datetime = existingEvent.start_datetime);
+      (updatedData.end_datetime) ? (updatedEvent.end_datetime = updatedData.end_datetime) : (updatedEvent.end_datetime = existingEvent.end_datetime);
+      (updatedData.color_code) ? (updatedEvent.color_code = updatedData.color_code) : (updatedEvent.color_code = existingEvent.color_code);
+      (updatedData.classification) ? (updatedEvent.classification = updatedData.classification) : (updatedEvent.classification = existingEvent.classification);
+      
+      if(updatedEvent){
+        updatedEvent.updated_at = new Date()
+      }
       const result = await eventsCollection.updateOne(
         { _id: new ObjectId(eventId) },
         { $set: updatedEvent }
       );
-  
+
       if (result.modifiedCount === 0) {
         throw new Error(`Failed to update event with id ${eventId}`);
       }
