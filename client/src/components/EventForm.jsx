@@ -25,12 +25,13 @@ function EventForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [eventData, setEventData] = useState({
     eventName: '',
-    dateTime: new Date(), // Initialize with the current date and time
+    dateTime: new Date(), 
     description: '',
   });
   const [desc, setDesc]= React.useState('')
   const [eventName, setEventName]= React.useState('')
   const [color, setColor] = React.useState('');
+  const [userEvents, setUserEvents] = useState([]);
 
   const handleChange = (event) => {
     setColor(event.target.value);
@@ -38,24 +39,6 @@ function EventForm() {
 
   const dispatch = useDispatch();
   let currentUserState = useSelector((state) => state.userInfo.currentUser);
-
-      
- 
-
-
-  // const handleInputChange = (e) => {
-  //   setEventData({
-  //     ...eventData,
-  //     [e.target.name]: e.target.value,
-  //   });
-  // };
-
-  // const handleDateTimeChange = (dateTime) => {
-  //   setEventData({
-  //     ...eventData,
-  //     dateTime,
-  //   });
-  // };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -78,21 +61,21 @@ function EventForm() {
         userId: currentUserState.id,
         obj,
       });
-    }
-    catch(e){
+
+      const eventId = response?.data?.event?.eventId;
+      dispatch(
+        actions.setUser({
+          ...currentUserState,
+          events: {
+            attending: [...currentUserState.events.attending, eventId],
+            organizing: [...currentUserState.events.organizing, eventId],
+          },
+        })
+      );
+      setUserEvents([...userEvents, eventId]);
+    } catch (e) {
       console.error(e);
     }
-    // try {
-    //   // Call API to create event
-      // const response = await axios.post('http://localhost:3000/events/create', {
-      //   userId: currentUser.id,
-      //   eventData,
-      // });
-
-      // // Update Redux state with the new event
-      // dispatch(actions.addEvent(response.data.event));
-     
-      // Clear form data
       setEventName('');
       setDesc('');
       setStartDateTime(dayjs().tz('America/New_York'));
@@ -104,9 +87,6 @@ function EventForm() {
         dateTime: '',
         description: '',
       });
-    // } catch (error) {
-    //   console.error('Error creating event:', error);
-    // }
   };
 
   return (
@@ -114,7 +94,6 @@ function EventForm() {
       <h2>Create Event</h2>
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <form onSubmit={handleFormSubmit}>
-        {/* Form fields for event details */}
         <TextField
           type="text"
           name="eventName"
@@ -122,17 +101,6 @@ function EventForm() {
           value={eventName}
           onChange={(newValue) => setEventName(newValue.target.value)}
         />
-
-        {/* DateTimePicker for date and time */}
-        {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DemoContainer components={['DateTimePicker']}>
-          <DateTimePicker label="Date and Time"  value={eventData.dateTime}
-            onChange={handleDateTimeChange}
-            defaultValue={dayjs('2022-04-17T15:30')}
-            renderInput={(props) => <TextField {...props}/>}/>
-        </DemoContainer>
-      </LocalizationProvider> */}
-
       <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
         <DateTimePicker
