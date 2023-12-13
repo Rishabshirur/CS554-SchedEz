@@ -6,6 +6,7 @@ import validations from '../validation.js'
 const createSchedule = async (userId, scheduleName) => {
 
     let errors = [];
+    var message
     try {
       userId = validations.checkId(userId, "userId");
     } catch (e) {
@@ -24,8 +25,7 @@ const createSchedule = async (userId, scheduleName) => {
 
     const userCollection = await users();
     const user = await userCollection.findOne(
-    { _id: new ObjectId(userId) },
-    { password: 0 }
+    { uid: userId }
   );
   if (!user) {
     throw [404, "User not found with this userId "];
@@ -33,12 +33,12 @@ const createSchedule = async (userId, scheduleName) => {
 
     const scheduleCollection = await schedules();
     const newSchedule = {
-        user_id: ObjectId(userId),
+        userId: userId,
         schedule_name: scheduleName,
         created_at: new Date(),
         updated_at: new Date(),
     }
-    const insert = await scheduleCollection.insert(newSchedule)
+    const insert = await scheduleCollection.insertOne(newSchedule)
 
     if (!insert.acknowledged || !insert.insertedId)
     throw [404, "Could not create new schedule"];
@@ -78,33 +78,49 @@ const getScheduleByUser = async (userId) => {
     }
   
     const scheduleCollection = await schedules();
-    const schedules = await scheduleCollection.find({ userId: userId }).toArray();
+    const userSchedules = await scheduleCollection.find({ userId: userId }).toArray();
   
-    if (schedules.length === 0) {
+    if (userSchedules.length === 0) {
       throw [404,"No schedules found for this user"];
     }
-    return schedules;
+    return userSchedules;
   };
 
   const removeSchedule = async (scheduleId) => {
+    
+    if (!ObjectId.isValid(scheduleId)) {
+      throw [400, "Schedule of Id not correct"];
+    }
+    const scheduleCollection = await schedules();
+      const deletionSchedule = await scheduleCollection.findOne({_id: new ObjectId(scheduleId)})
+      if(deletionSchedule===null){
+        throw [404, "Schedule with that Id does not exist"]
+      }
     try {
-      const scheduleCollection = await schedules();
+
       const deletionInfo = await scheduleCollection.findOneAndDelete({
         _id: new ObjectId(scheduleId),
       });
-      if (deletionInfo.deletedCount === 0) {
+      if (deletionInfo.lastErrorObject.n === 0) {
         throw `Could not delete schedule with id ${scheduleId}`;
       }
       return true;
     } catch (error) {
       console.error(`Error occurred while deleting schedule: ${error}`);
-      return false;
+      throw [500, "Could not delete that schedule"];
     }
   };
 
   const updateSchedule = async (scheduleId, updatedData) => {
+    var newData = {};
     try {
-      scheduleId = validations.checkId(scheduleId, "scheduleId");
+        if (!ObjectId.isValid(scheduleId)) {
+          throw "Invalid schedule Id"
+        }
+        if(updatedData.userId!==undefined){
+        newData.userId = validations.checkId(updatedData.userId, "userId"); }
+        if(updatedData.scheduleName!==undefined){
+        newData.schedule_name = validations.checkString(updatedData.scheduleName,"Schedule Name") }
   
       const scheduleCollection = await schedules();
       const existingSchedule = await scheduleCollection.findOne({ _id: new ObjectId(scheduleId) });
@@ -115,7 +131,7 @@ const getScheduleByUser = async (userId) => {
   
       const updatedSchedule = {
         ...existingSchedule,
-        ...updatedData,
+        ...newData,
         updated_at: new Date(),
       };
   
@@ -123,7 +139,7 @@ const getScheduleByUser = async (userId) => {
         { _id: new ObjectId(scheduleId) },
         { $set: updatedSchedule }
       );
-  
+      console.log(result)
       if (result.modifiedCount === 0) {
         throw new Error(`Failed to update schedule with id ${scheduleId}`);
       }

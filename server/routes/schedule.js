@@ -2,6 +2,7 @@ import {Router} from 'express';
 import {scheduleData} from '../data/index.js'
 import { ObjectId } from "mongodb";
 import validations from '../validation.js'
+import { errorObject } from '../badInputs.js';
 
 
 const router = Router();
@@ -57,7 +58,7 @@ router.post("/", async (req, res) => {
       }
   
       const schedules = await scheduleData.getScheduleByUser(userId);
-      return res.json({ schedules });
+      return res.status(200).json({ schedules });
     } catch (e) {
       const msg = e?.[1] || e?.message;
       return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
@@ -88,7 +89,17 @@ router.post("/", async (req, res) => {
     const updatedData = req.body;
   
     try {
-      scheduleId = validations.checkId(scheduleId, "scheduleId");
+      if (!ObjectId.isValid(scheduleId)) {
+        throw errorObject(errorType.BAD_INPUT, `Error: ScheduleId should be a non-empty string value`);
+      }
+      if(updatedData.userId!==undefined){
+      updatedData.userId = validations.checkId(updatedData.userId, "userId"); }
+      if(updatedData.scheduleName!==undefined){
+      updatedData.scheduleName = validations.checkString(updatedData.scheduleName,"Schedule Name") }
+    } catch (e) {
+      return res.status(400).json({error: e.message})
+    }
+    try {
   
       const success = await scheduleData.updateSchedule(scheduleId, updatedData);
   
