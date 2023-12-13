@@ -15,7 +15,7 @@ router.post("/", async (req, res) => {
       console.log(e);
       errors.push(e?.message);
     }
-  
+   
     try {
       scheduleInfo.scheduleName = validations.checkString(
         scheduleInfo.scheduleName,

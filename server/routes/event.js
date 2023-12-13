@@ -2,6 +2,7 @@ import {Router} from 'express';
 import {eventData} from '../data/index.js'
 import { ObjectId } from "mongodb";
 import validations from '../validation.js'
+import { errorType, errorObject } from "../badInputs.js";
 import user from '../data/user.js';
 
 
@@ -75,28 +76,41 @@ router.post("/", async (req, res) => {
   
 
   router.patch("/:eventId", async (req, res) => {
-    const eventId = req.params.eventId;
-    const updatedData = req.body;
-  
-    // try {
-    //   req.body.userId = validations.checkString(req.body.userId, "userId");
-    //   newEvent.eventName = validations.checkString(newEvent.eventName, "Event Name");
-    //   validations.checkDate(newEvent.startDateTime, "Start Date and Time");
-    //   validations.checkDate(newEvent.endDateTime, "End Date and Time");
-    //   newEvent.startDateTime = newEvent.startDateTime.trim();
-    //   newEvent.endDateTime = newEvent.endDateTime.trim()
-    //   newEvent.color = validations.checkString(newEvent.color, "Color Code");
-    //   newEvent.desc = validations.checkString(newEvent.desc, "Classification");
-    // } catch (error) {
-    //   return res.status(400).json({error: 'Bad Input'})
-    // }
+    var eventId = req.params.eventId;
+    var updatedData = req.body;
     try {
-      eventId = validations.checkId(eventId, "eventId");
+      eventId = validations.checkString(eventId, "event Id");
+      if(!ObjectId.isValid(eventId)){
+        throw errorObject(errorType.BAD_INPUT, `Event ID is invalid`)
+      }
+      if(Object.keys(updatedData).length===0){
+        throw errorObject(errorType.NOT_FOUND,"No data found in req body")
+      }
+      if(updatedData.eventName!==undefined){
+      updatedData.eventName = validations.checkString(updatedData.eventName, "Event Name"); 
+    }
+      if(updatedData.startDateTime!==undefined){
+      validations.checkDate(updatedData.startDateTime, "Start Date and Time"); 
+      updatedData.startDateTime = updatedData.startDateTime.trim();
+    }
+    if(updatedData.endDateTime!==undefined){
+      validations.checkDate(updatedData.endDateTime, "End Date and Time");
+      updatedData.endDateTime = updatedData.endDateTime.trim() }
+      if(updatedData.color!==undefined){
+      updatedData.color = validations.checkString(updatedData.color, "Color Code"); 
+    }
+    if(updatedData.desc!==undefined){
+      updatedData.desc = validations.checkString(updatedData.desc, "Classification"); 
+    }
+    } catch (error) {
+      return res.status(400).json({error: error.message})
+    }
+    try {
   
       const success = await eventData.updateEvent(eventId, updatedData);
   
       if (success) {
-        return res.json({ message: "Event updated successfully" });
+        return res.status(200).json({ message: "Event updated successfully" });
       } else {
         return res.status(404).json({ message: `Event not found with id ${eventId}` });
       }

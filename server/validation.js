@@ -9,6 +9,10 @@ const exportedMethods = {
     if (!strVal) {
       throw errorObject(errorType.BAD_INPUT, `Error: ${varName} cannot contain just empty spaces`);
     };
+    console.log(strVal)
+    if(strVal===null){
+      throw errorObject(errorType.BAD_INPUT, `Error: ${varName} cannot be null`);
+    }
     if (/^\d+$/.test(strVal)) {
       throw errorObject(errorType.BAD_INPUT, `Error: ${varName} should not be a number`);
     };
@@ -122,7 +126,7 @@ const exportedMethods = {
     return userInfo;
   },
   checkDate(dateString,fieldName){
-  const date1 = this.checkString(dateString);
+  const date1 = this.checkString(dateString,fieldName);
   const date = new Date(date1);
 if (!date || isNaN(date)) {
   throw errorObject(errorType.BAD_INPUT, `Error: ${fieldName} is not valid`);

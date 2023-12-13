@@ -134,8 +134,30 @@ const createEvent = async (userId, eventData) => {
   };
 
   const updateEvent = async (eventId, updatedData) => {
+    var updatingEvent = {};
     try {
-      eventId = validations.checkId(eventId, "eventId");
+      eventId = validations.checkString(eventId, "event Id");
+      if(!ObjectId.isValid(eventId)){
+        throw "event Id is invalid"
+      }
+      // if(Object.keys(updatedData).length===0){
+      //   throw errorObject(errorType.NOT_FOUND,"No data found in req body")
+      // }
+      if(updatedData.eventName!==undefined){
+        updatingEvent.event_name = validations.checkString(updatedData.eventName, "Event Name"); }
+      if(updatedData.startDateTime!==undefined){
+      validations.checkDate(updatedData.startDateTime, "Start Date and Time"); 
+      updatingEvent.start_datetime = updatedData.startDateTime.trim();
+    }
+    if(updatedData.endDateTime!==undefined){
+      validations.checkDate(updatedData.endDateTime, "End Date and Time");
+      updatingEvent.end_datetime = updatedData.endDateTime.trim() }
+      if(updatedData.color!==undefined){
+        updatingEvent.color_code = validations.checkString(updatedData.color, "Color Code"); 
+    }
+    if(updatedData.desc!==undefined){
+      updatingEvent.classification = validations.checkString(updatedData.desc, "Classification"); 
+    }
   
       const eventsCollection = await events();
       const existingEvent = await eventsCollection.findOne({ _id: new ObjectId(eventId) });
@@ -146,7 +168,7 @@ const createEvent = async (userId, eventData) => {
   
       const updatedEvent = {
         ...existingEvent,
-        ...updatedData,
+        ...updatingEvent,
         updated_at: new Date(),
       };
   
