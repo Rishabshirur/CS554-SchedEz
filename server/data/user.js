@@ -34,9 +34,13 @@ const create = async(
   // const user = await auth.getUser(id)
   // const user = await auth.currentUser
   // console.log(user);
+  id = validation.checkString(id,"Firebase User Id")
+  username = validation.checkUsername(username,"username")
+  email = validation.checkMailID(email,"email");
   console.log('Data route');
   const userCollection = await users();
-  const userNameExits = await userCollection.findOne({ username } );
+  const userIdExist = await userCollection.findOne({uid: id})
+  const userNameExits = await userCollection.findOne({name: username } );
   const emailExits = await userCollection.findOne({email});
   if (userNameExits) {
     throw "Error: username already used";
@@ -45,7 +49,9 @@ const create = async(
   if (emailExits) {
     throw "Error: email already used";
   }
-
+  if(userIdExist){
+    throw "Error: uid already exist"
+  }
 
   
   // Create a new user object with the hashed password
@@ -72,6 +78,9 @@ const create = async(
 
 const getAllUsers = async (queryParams) => {
     const userCollection = await users();
+    if(queryParams.isActive !== 'true' && queryParams.isActive !== 'false'){
+      throw "Query Parameter isActive is set wrong";
+    }
     queryParams.isActive = queryParams.isActive === 'true';
     const usersResponse = await userCollection.find(queryParams).project({ password: 0 }).toArray();
     if (!usersResponse?.length) {
@@ -86,11 +95,13 @@ const getAllUsers = async (queryParams) => {
 
   const get = async (id) => {
 
-    if (!id || typeof id !== "string" || id.trim().length === 0) {
-      throw new Error("Invalid id");
-    }
-     id = id.trim();
-  
+    // if (!id || typeof id !== "string" || id.trim().length === 0) {
+    //   throw new Error("Invalid id");
+    // }
+    //  id = id.trim();
+
+    console.log(typeof id)
+    id = validation.checkString(id,"Firebase User Id");
     //  if (!ObjectId.isValid(id)){
     //   throw new Error ('invalid object ID');
     //  } 
@@ -107,23 +118,15 @@ const getAllUsers = async (queryParams) => {
   }
 
   const remove = async (id) => {
-    if (!id || typeof id !== "string" || id.trim().length === 0) {
-      throw new Error("Invalid ID provided");
-    }
-    id = id.trim();
-  
-    if (!ObjectId.isValid(id)){
-      throw new Error ('invalid object ID');
-     } 
-  
     const db = await users();
   
-    const user = await db.findOne({ _id: new ObjectId(id) }, { projection:{ password: 0 } });
+    id = validation.checkString(id)
+    const user = await db.findOne({ uid: id});
     if (!user) {
       throw new Error("user not found");
     }
   
-    await db.deleteOne({ _id: new ObjectId(id) });
+    await db.deleteOne({ uid: id });
   
     const message = user.name + " has been successfully deleted!";
     return message;

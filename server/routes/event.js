@@ -2,25 +2,34 @@ import {Router} from 'express';
 import {eventData} from '../data/index.js'
 import { ObjectId } from "mongodb";
 import validations from '../validation.js'
+import user from '../data/user.js';
 
 
 const router = Router();
 
 router.post("/", async (req, res) => {
-    const newEvent = req.body;
-  
+    var newEvent = req.body.obj;
+    console.log(req.body.obj);
+  try {
+    req.body.userId = validations.checkString(req.body.userId, "userId");
+    newEvent.eventName = validations.checkString(newEvent.eventName, "Event Name");
+    validations.checkDate(newEvent.startDateTime, "Start Date and Time");
+    validations.checkDate(newEvent.endDateTime, "End Date and Time");
+    newEvent.startDateTime = newEvent.startDateTime.trim();
+    newEvent.endDateTime = newEvent.endDateTime.trim()
+    newEvent.color = validations.checkString(newEvent.color, "Color Code");
+    newEvent.desc = validations.checkString(newEvent.desc, "Classification");
+  } catch (error) {
+    return res.status(400).json({error: 'Bad Input'})
+  }
+
     try {
-      // newEvent.userId = validations.checkId(newEvent.userId, "userId");
-      // newEvent.event_name = validations.checkString(newEvent.event_name, "Event Name");
-      // newEvent.start_datetime = validations.checkDateTime(newEvent.start_datetime, "Start Date and Time");
-      // newEvent.end_datetime = validations.checkDateTime(newEvent.end_datetime, "End Date and Time");
-      // newEvent.color_code = validations.checkString(newEvent.color_code, "Color Code");
-      // newEvent.classification = validations.checkString(newEvent.classification, "Classification");
       console.log(newEvent)
-      const createdEvent = await eventData.createEvent(newEvent.userId,newEvent.obj);
+      const createdEvent = await eventData.createEvent(req.body.userId,newEvent);
       console.log(createdEvent)
       return res.json({ event: createdEvent });
     } catch (e) {
+      console.log(e)
       const msg = e?.[1] || e?.message;
       return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
     }
@@ -28,8 +37,12 @@ router.post("/", async (req, res) => {
   
 
   router.get("/:userId", async (req, res) => {
-    const userId = req.params.userId;
-  
+    var userId = req.params.userId;
+    try {
+      userId = validations.checkString(userId); 
+    } catch (error) {
+      return res.status(400).json({error: 'Bad Input'})
+    }
     try {
       const userEvents = await eventData.getEventsByUser(userId);
   
@@ -41,10 +54,17 @@ router.post("/", async (req, res) => {
   });
 
   router.get("/detail/:id", async (req, res) => {
-    const userId = req.params.id;
-  
+    var id = req.params.id;
     try {
-      const userEvents = await eventData.getEventById(userId);
+      id = validations.checkString(id,"Event ID") 
+      if (!ObjectId.isValid(id)) {
+        throw new Error("invalid event ID");
+      }
+    } catch (error) {
+      return res.status(400).json({error: 'Bad Input'})
+    }
+    try {
+      const userEvents = await eventData.getEventById(id);
   
       return res.status(200).json({ events: userEvents });
     } catch (e) {
@@ -58,6 +78,18 @@ router.post("/", async (req, res) => {
     const eventId = req.params.eventId;
     const updatedData = req.body;
   
+    // try {
+    //   req.body.userId = validations.checkString(req.body.userId, "userId");
+    //   newEvent.eventName = validations.checkString(newEvent.eventName, "Event Name");
+    //   validations.checkDate(newEvent.startDateTime, "Start Date and Time");
+    //   validations.checkDate(newEvent.endDateTime, "End Date and Time");
+    //   newEvent.startDateTime = newEvent.startDateTime.trim();
+    //   newEvent.endDateTime = newEvent.endDateTime.trim()
+    //   newEvent.color = validations.checkString(newEvent.color, "Color Code");
+    //   newEvent.desc = validations.checkString(newEvent.desc, "Classification");
+    // } catch (error) {
+    //   return res.status(400).json({error: 'Bad Input'})
+    // }
     try {
       eventId = validations.checkId(eventId, "eventId");
   
@@ -76,10 +108,15 @@ router.post("/", async (req, res) => {
   
 
   router.delete("/:eventId", async (req, res) => {
-    const eventId = req.params.eventId;
+    var eventId = req.params.eventId;
   
-    if (!ObjectId.isValid(eventId)) {
-      return res.status(400).json({ message: "Invalid event ID" });
+    try {
+      eventId = validations.checkString(eventId)
+      if (!ObjectId.isValid(eventId)) {
+        throw "Invalid eventId"
+      } 
+    } catch (error) {
+      return res.status(400).json({error: 'Bad Input'})
     }
   
     try {

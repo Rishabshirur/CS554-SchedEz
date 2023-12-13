@@ -6,22 +6,26 @@ import validations from '../validation.js'
 const createEvent = async (userId, eventData) => {
 // const createEvent = async (userId, scheduleId, eventData) => {
     let errors = [];
-  
+    console.log(eventData)
     try {
-      // userId = validations.checkId(userId, "userId");
+      userId = validations.checkString(userId, "userId");
       // scheduleId = validations.checkId(scheduleId, "scheduleId");
     } catch (e) {
       errors.push(e?.message);
     }
   
     try {
-    //   validations.checkString(eventData.eventName, "Event Name");
+      validations.checkString(eventData.eventName, "Event Name");
     //  //do validation for other inputs
-    //   validations.checkString(eventData.classification, "Classification");
+    validations.checkDate(eventData.startDateTime,"Start DateTime")
+    validations.checkDate(eventData.endDateTime,"End DateTime")
+      validations.checkString(eventData.desc, "Classification");
+      validations.checkString(eventData.color, "Color");
     } catch (e) {
       errors.push(e?.message);
     }
-  
+
+
     if (errors.length > 0) {
       throw [400, errors];
     }
@@ -51,7 +55,7 @@ const createEvent = async (userId, eventData) => {
   
     const insert = await eventsCollection.insertOne(newEvent);
     if (!insert.acknowledged || !insert.insertedId) {
-      throw [404, "Could not create new event"];
+      throw [500, "Could not create new event"];
     }
     const userCollection = await users();
     let user = await userCollection.findOne(
@@ -84,8 +88,8 @@ const createEvent = async (userId, eventData) => {
   
     const eventsCollection = await events();
     const eventDetail = await eventsCollection.find({ _id: new ObjectId(id) }).toArray();
-    if (eventDetail === null) {
-      throw new Error("No schedule with that id");
+    if (eventDetail.length === 0) {
+      throw [404,"No schedule with that id"];
     }
     return eventDetail || [];
   };
@@ -93,6 +97,7 @@ const createEvent = async (userId, eventData) => {
 
   const getEventsByUser = async (userId) => { 
     const eventsCollection = await events();
+    userId = validations.checkString(userId,"User ID");
     const eventsList = await eventsCollection.find({ userId: userId }).toArray();
     console.log(eventsList)
   
@@ -103,11 +108,21 @@ const createEvent = async (userId, eventData) => {
   };
 
   const removeEvent = async (eventId) => {
+    eventId = validations.checkString(eventId,"Event Id");
+    if (!ObjectId.isValid(eventId)) {
+      throw new Error("invalid object ID");
+    }
+
     try {
       const eventsCollection = await events();
+      const isEventPresent = await eventsCollection.findOne({_id: new ObjectId(eventId)})
+      if(isEventPresent === null){
+        throw "Event with given Id not present"
+      }
       const deletionInfo = await eventsCollection.findOneAndDelete({
         _id: new ObjectId(eventId),
       });
+      console.log(deletionInfo)
       if (deletionInfo.deletedCount === 0) {
         throw `Could not delete event with id ${eventId}`;
       }

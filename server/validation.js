@@ -120,6 +120,13 @@ const exportedMethods = {
       userInfo.password = this.checkPassword(userInfo.password);
     }
     return userInfo;
+  },
+  checkDate(dateString,fieldName){
+  const date1 = this.checkString(dateString);
+  const date = new Date(date1);
+if (!date || isNaN(date)) {
+  throw errorObject(errorType.BAD_INPUT, `Error: ${fieldName} is not valid`);
+}
   }
 };
 
