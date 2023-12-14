@@ -1,4 +1,4 @@
-import {useContext,useEffect} from 'react';
+import {useContext, useState, useEffect} from 'react';
 import {AuthContext} from '../context/AuthContext';
 import {useSelector, useDispatch} from 'react-redux';
 import {getAuth} from 'firebase/auth';
@@ -11,6 +11,17 @@ import { Link } from 'react-router-dom';
 import EventCalendar from './EventCalendar';
 
 function Home() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+
   const {currentUser} = useContext(AuthContext);
   const dispatch = useDispatch();
   let auth = getAuth();
@@ -41,11 +52,24 @@ function Home() {
         Name: {currentUserState?.name}
         Email: {currentUserState?.email}
       </h2>
-      <EventForm></EventForm>
+      
+      
+    
       <Link to="/all-events">View My All Events</Link>
       <br/>
       <Link to="/events-today">View Today's Events</Link>
       <br/>
+      <button onClick={openModal}>Open Event Form</button>
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <span className="close" onClick={closeModal}>
+              &times;
+            </span>
+            <EventForm />
+          </div>
+        </div>
+      )}
       <EventCalendar/>
     </div>
   );
