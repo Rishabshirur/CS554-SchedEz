@@ -32,9 +32,14 @@ function EventForm() {
   const [eventName, setEventName]= React.useState('')
   const [color, setColor] = React.useState('');
   const [userEvents, setUserEvents] = useState([]);
+  const [schedule,setSchedule] = useState('work')
 
   const handleChange = (event) => {
     setColor(event.target.value);
+  };
+
+  const handleChangeSchedule = (event) => {
+    setSchedule(event.target.value);
   };
 
   const dispatch = useDispatch();
@@ -47,12 +52,14 @@ function EventForm() {
       setErrorMessage('End date must be strictly greater than start date.');
       return;
     }
+    console.log(schedule)
     let obj={
       eventName,
       desc,
       startDateTime,
       endDateTime,
-      color
+      color,
+      schedule
     }
     console.log(obj)
 
@@ -137,6 +144,18 @@ function EventForm() {
           <MenuItem value={"Red"}>Red</MenuItem>
           <MenuItem value={"Blue"}>Blue</MenuItem>
           <MenuItem value={"Yellow"}>Yellow</MenuItem>
+        </Select>
+
+        <InputLabel id="demo-simple-select-label">Schedule</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select-schedule"
+          value={"work"}
+          label="Schedule"
+          onChange={handleChangeSchedule}
+        >
+          <MenuItem value={"work"}>Work</MenuItem>
+          <MenuItem value={"home"}>Home</MenuItem>
         </Select>
 
         <TextField

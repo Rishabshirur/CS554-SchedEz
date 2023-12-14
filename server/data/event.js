@@ -44,6 +44,8 @@ const createEvent = async (userId, eventData) => {
       end_datetime: eventData.endDateTime,
       color_code: eventData.color,
       classification: eventData.desc,
+      schedule_name: eventData.schedule,
+      scheduleId: eventData.scheduleId,
       created_at: new Date(),
       updated_at: new Date(),
     };

@@ -4,6 +4,8 @@ import { getAuth } from 'firebase/auth';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { useSelector } from 'react-redux';
 
   
@@ -22,9 +24,16 @@ const EventDetails = ({ event, onClose }) => (
 const EventCalendar = () => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  console.log("1",events)
+  const checkboxOptions = [
+    { label: "work", value: "work" },
+    { label: "home", value: "home" },
+    // ... add more options as needed
+  ];
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  console.log(selectedOptions);
+  // console.log("1",events)
   var currentUser = useSelector((state) => state.userInfo.currentUser);
-  console.log("currentuser",currentUser)
+  // console.log("currentuser",currentUser)
   // var events = currentUser.events.organizing;
   let auth = getAuth();
   useEffect(() => {
@@ -40,10 +49,52 @@ const EventCalendar = () => {
     fetchData();
   }, [auth.currentUser.uid,currentUser]);
 
+  // const formatEvents = (events) => {
+  //   console.log(events)
+  //   var newEvents = []
+  //   var myEvents;
+  //   console.log(selectedOptions);
+  //   if(selectedOptions.length!==0){
+  //   events.forEach(element => {
+  //     console.log(element)
+  //     if(element?.schedule_name?.includes(selectedOptions)){
+  //       newEvents.push(element)
+  //     }
+  //   }); 
+  // myEvents = newEvents;
+  // console.log(newEvents);
+  // }
+  // else{
+  //   myEvents = events
+  // }
+  //   return myEvents
+  //     // // .filter((event) => event?.schedule_name?.includes(selectedOptions))
+  //     // .filter((event) => selectedOptions.some(option => event?.schedule_name?.includes(option)))
+  //     .map((event) => ({
+  //       //   id: event._id,
+  //       title: event.event_name,
+  //       start: new Date(event.start_datetime),
+  //       end: new Date(event.end_datetime),
+  //       color: event.color_code,
+  //       classification: event.classification,
+  //     }));
+  // };
+
   const formatEvents = (events) => {
-    console.log("2",events)
-    return events.map((event) => ({
-    //   id: event._id,
+    console.log('Events:', events);
+    console.log('Selected Options:', selectedOptions);
+  
+    // Filtering logic
+    const filteredEvents = events.filter((event) => {
+      if (selectedOptions.length === 0) return true; // Show all events if no filter is selected
+      // Adjust the checking mechanism here based on your data structure
+      return selectedOptions.some(option => 
+        event?.schedule_name?.toLowerCase().includes(option.toLowerCase())
+      );
+    });
+  
+    // Map to the desired format
+    return filteredEvents.map((event) => ({
       title: event.event_name,
       start: new Date(event.start_datetime),
       end: new Date(event.end_datetime),
@@ -60,9 +111,34 @@ const EventCalendar = () => {
     setSelectedEvent(null);
   };
 
+  const handleCheckboxChange = (event) => {
+    const value = event.target.value;
+    setSelectedOptions((prev) => {
+      if (prev.includes(value)) {
+        return prev.filter((option) => option !== value);
+      } else {
+        return [...prev, value];
+      }
+    });
+  };
+  
 
   return (
     <div>
+
+{checkboxOptions.map((option) => (
+    <FormControlLabel
+      key={option.value}
+      control={
+        <Checkbox
+          checked={selectedOptions.includes(option.value)}
+          onChange={handleCheckboxChange}
+          value={option.value}
+        />
+      }
+      label={option.label}
+    />
+  ))}
       <Calendar
         localizer={localizer}
         events={formatEvents(events)}
