@@ -3,6 +3,7 @@ import { users } from "../config/mongoCollections.js";
 import { schedules } from "../config/mongoCollections.js";
 import { events } from "../config/mongoCollections.js";
 import validations from '../validation.js'
+import { errorType, errorObject } from "../badInputs.js";
 const createEvent = async (userId, eventData) => {
 // const createEvent = async (userId, scheduleId, eventData) => {
     let errors = [];
@@ -19,6 +20,11 @@ const createEvent = async (userId, eventData) => {
     //  //do validation for other inputs
     validations.checkDate(eventData.startDateTime,"Start DateTime")
     validations.checkDate(eventData.endDateTime,"End DateTime")
+    var checStartDatetime = new Date(eventData.startDateTime)
+    var checkEndDatetime = new Date(eventData.endDateTime)
+    if(checStartDatetime>=checkEndDatetime){
+      throw errorObject(errorType.BAD_INPUT, `Start Datetime cannot be greater than or equal to End Datetime`);
+    }
       validations.checkString(eventData.desc, "Classification");
       validations.checkString(eventData.color, "Color");
     } catch (e) {
@@ -30,6 +36,13 @@ const createEvent = async (userId, eventData) => {
       throw [400, errors];
     }
   
+    const userCollection = await users();
+    let checkUser = await userCollection.findOne(
+      { uid: userId}
+    );
+    if(checkUser===null){
+      throw [404,"This user is not present"]
+    }
     
     console.log("in data events")
     // if (!user) {
@@ -57,7 +70,6 @@ const createEvent = async (userId, eventData) => {
     if (!insert.acknowledged || !insert.insertedId) {
       throw [500, "Could not create new event"];
     }
-    const userCollection = await users();
     let user = await userCollection.findOne(
       { uid: userId}
     );

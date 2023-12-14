@@ -16,12 +16,17 @@ router.post("/", async (req, res) => {
     newEvent.eventName = validations.checkString(newEvent.eventName, "Event Name");
     validations.checkDate(newEvent.startDateTime, "Start Date and Time");
     validations.checkDate(newEvent.endDateTime, "End Date and Time");
+    var checStartDatetime = new Date(newEvent.startDateTime)
+    var checkEndDatetime = new Date(newEvent.endDateTime)
+    if(checStartDatetime>=checkEndDatetime){
+      throw errorObject(errorType.BAD_INPUT, `Start Datetime cannot be greater than or equal to End Datetime`);
+    }
     newEvent.startDateTime = newEvent.startDateTime.trim();
     newEvent.endDateTime = newEvent.endDateTime.trim()
     newEvent.color = validations.checkString(newEvent.color, "Color Code");
     newEvent.desc = validations.checkString(newEvent.desc, "Classification");
   } catch (error) {
-    return res.status(400).json({error: 'Bad Input'})
+    return res.status(400).json({error: error.message})
   }
 
     try {
