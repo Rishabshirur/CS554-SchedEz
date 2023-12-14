@@ -41,12 +41,24 @@ function Home() {
         Name: {currentUserState?.name}
         Email: {currentUserState?.email}
       </h2>
-      <EventForm></EventForm>
       <Link to="/all-events">View My All Events</Link>
       <br/>
       <Link to="/events-today">View Today's Events</Link>
       <br/>
       <EventCalendar/>
+
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <span className="close" onClick={closeModal}>
+              &times;
+            </span>
+            <EventForm />
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 }
