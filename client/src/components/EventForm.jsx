@@ -63,15 +63,20 @@ function EventForm() {
       });
 
       const eventId = response?.data?.event?.eventId;
+      console.log("before dispatch",currentUserState)
       dispatch(
-        actions.setUser({
-          ...currentUserState,
-          events: {
+        actions.setUser(
+          currentUserState.id,
+          currentUserState.name,
+          currentUserState.email,
+          {
             attending: [...currentUserState.events.attending, eventId],
             organizing: [...currentUserState.events.organizing, eventId],
           },
-        })
+          currentUserState.isActive
+        )
       );
+      
       setUserEvents([...userEvents, eventId]);
     } catch (e) {
       console.error(e);

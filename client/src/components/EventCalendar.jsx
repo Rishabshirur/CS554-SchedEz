@@ -4,6 +4,7 @@ import { getAuth } from 'firebase/auth';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
   
 const localizer = momentLocalizer(moment);
@@ -21,6 +22,10 @@ const EventDetails = ({ event, onClose }) => (
 const EventCalendar = () => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  console.log("1",events)
+  var currentUser = useSelector((state) => state.userInfo.currentUser);
+  console.log("currentuser",currentUser)
+  // var events = currentUser.events.organizing;
   let auth = getAuth();
   useEffect(() => {
     const fetchData = async () => {
@@ -33,10 +38,10 @@ const EventCalendar = () => {
     };
 
     fetchData();
-  }, [auth.currentUser.uid]);
+  }, [auth.currentUser.uid,currentUser]);
 
   const formatEvents = (events) => {
-    console.log(events)
+    console.log("2",events)
     return events.map((event) => ({
     //   id: event._id,
       title: event.event_name,
