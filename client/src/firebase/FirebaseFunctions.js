@@ -62,8 +62,8 @@ async function updateUserProfile(email, displayName) {
 
   try {
     // Update user profile
-    await updateProfile(auth.currentUser, { displayName: displayName });
-    // await updateEmail(auth.currentUser, email);
+    await updateProfile(auth.currentUser, { displayName: displayName});
+    await updateEmail(auth.currentUser, email);
 
     // // Post user data to your server
     // await axios.post("http://localhost:3000/user/all-users", {

@@ -60,7 +60,10 @@ function handleChange(e) {
 
         // await updateEmail(auth.currentUser, email)
         // await updateProfile(auth.currentUser, {displayName: username})
-        //await updateUserProfile(email,username)
+        console.log(email.value)
+        console.log(username.value)
+        await updateUserProfile(email.value,username.value)
+        
         const response = await axios.put(`http://localhost:3000/user/${auth.currentUser.uid}`, {
           userId: currentUser.uid,
           obj,
