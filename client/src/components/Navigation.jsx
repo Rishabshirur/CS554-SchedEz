@@ -13,18 +13,18 @@ const NavigationAuth = () => {
   return (
     <nav className='navigation'>
       <ul>
-        <li>
+        {/* <li>
           <NavLink to='/'>Landing</NavLink>
-        </li>
+        </li> */}
         <li>
           <NavLink to='/home'>Home</NavLink>
         </li>
         <li>
-          <NavLink to='/account'>Account</NavLink>
+          <NavLink to='/account'>Profile</NavLink>
         </li>
-        <li>
+        {/* <li>
           <NavLink to='/update-profile'>Update Profile</NavLink>
-        </li>
+        </li> */}
         <li>
           <SignOutButton />
         </li>

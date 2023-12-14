@@ -135,7 +135,7 @@ const getAllUsers = async (queryParams) => {
     const usersCol = await users();
     const myUserInfo = await usersCol.findOne({uid: userId})
     myUserInfo.name = userInfo.username
-    myUserInfo.email = userInfo.email
+    // myUserInfo.email = userInfo.email
     const updatedInfo = await usersCol.findOneAndUpdate({ uid: userId }, {
       $set: myUserInfo
     }, {returnDocument: 'after'});

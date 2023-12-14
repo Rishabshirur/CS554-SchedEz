@@ -136,7 +136,7 @@ router.post("/all-users", async (req,res) => {
     console.log("photo route running") 
     im.resize({
       srcPath: req.file.path,
-      dstPath: 'D:\My folder\Stevens University assignment\All_554_assignments\Final_Project\CS554-SchedEz\server\public\data\uploads',
+      dstPath: 'D:\My folder\Stevens University assignment\All_554_assignments\Final_Project\CS554-SchedEz\server\public\data\\uploads',
       width:   15,
       height: 10
     }, function(err, stdout, stderr){

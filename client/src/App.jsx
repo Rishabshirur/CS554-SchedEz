@@ -58,7 +58,7 @@ function App() {
           <Navigation />
         </header>
         <Routes>
-          <Route path='/' element={<Landing />} />
+          <Route path='/' element={<Home />} />
           <Route path='/home' element={<PrivateRoute />}>
             <Route path='/home' element={<Home />} />
           </Route>
