@@ -114,7 +114,7 @@ const exportedMethods = {
     userInfo.username = this.checkUsername(userInfo.username);
     // userInfo.firstName = this.validateNameValue(userInfo.firstName, 'First name');
     // userInfo.lastName = this.validateNameValue(userInfo.lastName, 'Last name');
-    userInfo.email = this.checkMailID(userInfo.email);
+    //userInfo.email = this.checkMailID(userInfo.email);
     // userInfo.age = this.checkAge(userInfo.age);
     // if (userInfo.password) {
     //   userInfo.password = this.checkPassword(userInfo.password);
