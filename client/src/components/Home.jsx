@@ -91,6 +91,11 @@ import EventCalendar from './EventCalendar';
 function Home() {
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [shouldUpdateCalendar, setShouldUpdateCalendar] = useState(false);
+
+  const handleUpdateCalendar = () => {
+    setShouldUpdateCalendar(!shouldUpdateCalendar);
+  };
 
   const openEventModal = () => {
     setIsEventModalOpen(true);
@@ -164,11 +169,11 @@ function Home() {
             <span className="close" onClick={closeScheduleModal}>
               &times;
             </span>
-            <ScheduleForm />
+            <ScheduleForm onUpdateCalendar={handleUpdateCalendar} />
           </div>
         </div>
       )}
-      <EventCalendar/>
+      <EventCalendar shouldUpdateCalendar={shouldUpdateCalendar}/>
     </div>
   );
 }

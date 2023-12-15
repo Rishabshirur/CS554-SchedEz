@@ -36,7 +36,7 @@ function EventForm() {
   const [eventName, setEventName]= React.useState('')
   const [color, setColor] = React.useState('');
   const [userEvents, setUserEvents] = useState([]);
-  const [schedule,setSchedule] = useState('work')
+  const [schedule,setSchedule] = useState('')
 
   const handleChange = (event) => {
     setColor(event.target.value);
@@ -118,79 +118,89 @@ function EventForm() {
       });
   };
 
-  var scheduleSelect = (
-    <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select-schedule"
-          value={''}
-          label="Schedule"
-          onChange={handleChangeSchedule}
-        >
-          {checkboxOptions &&  checkboxOptions.map((option) => {
-            {console.log(option)}
-            return <MenuItem value={option.schedule_name} >{option.schedule_name}</MenuItem>
-          })}
-        </Select>
-  )
-  console.log(scheduleSelect);
-
   return (
-    <div>
+    <div style={{ maxWidth: '600px', margin: 'auto' }}>
       <h2>Create Event</h2>
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-      <form onSubmit={handleFormSubmit}>
+      <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
         <TextField
           type="text"
           name="eventName"
           label="Event Name"
           value={eventName}
           onChange={(newValue) => setEventName(newValue.target.value)}
+          style={{ marginBottom: '16px' }}
         />
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-        <DateTimePicker
-          label="Controlled picker"
-          value={startDateTime}
-          onChange={(newValue) => setStartDateTime(newValue)}
-        />
-      </DemoContainer>
-      </LocalizationProvider>
 
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-        <DateTimePicker
-          label="Controlled picker"
-          value={endDateTime}
-          onChange={(newValue) => setEndDateTime(newValue)}
-        />
-      </DemoContainer>
-      </LocalizationProvider>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+            <DateTimePicker
+              label="Start Date and Time"
+              value={startDateTime}
+              onChange={(newValue) => setStartDateTime(newValue)}
+              style={{ marginBottom: '16px' }}
+            />
+          </DemoContainer>
+        </LocalizationProvider>
 
-      <InputLabel id="demo-simple-select-label">Color</InputLabel>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+            <DateTimePicker
+              label="End Date and Time"
+              value={endDateTime}
+              onChange={(newValue) => setEndDateTime(newValue)}
+              style={{ marginBottom: '16px' }}
+            />
+          </DemoContainer>
+        </LocalizationProvider>
+
+        <InputLabel id="demo-simple-select-label" style={{ marginBottom: '8px' }}>
+          Color
+        </InputLabel>
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           value={color}
-          label="Age"
+          label="Color"
           onChange={handleChange}
+          style={{ marginBottom: '16px' }}
         >
-          <MenuItem value={"Red"}>Red</MenuItem>
-          <MenuItem value={"Blue"}>Blue</MenuItem>
-          <MenuItem value={"Yellow"}>Yellow</MenuItem>
+          <MenuItem value={'Red'}>Red</MenuItem>
+          <MenuItem value={'Blue'}>Blue</MenuItem>
+          <MenuItem value={'Yellow'}>Yellow</MenuItem>
         </Select>
 
-        <InputLabel id="demo-simple-select-label">Schedule</InputLabel>
-        
-        {scheduleSelect}
+        <InputLabel id="demo-simple-select-label" style={{ marginBottom: '8px' }}>
+          Schedule
+        </InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select-schedule"
+          value={schedule}
+          label="Schedule"
+          onChange={handleChangeSchedule}
+          style={{ marginBottom: '16px' }}
+        >
+          {checkboxOptions &&
+            checkboxOptions.map((option) => (
+              <MenuItem value={option.schedule_name} key={option.schedule_name}>
+                {option.schedule_name}
+              </MenuItem>
+            ))}
+        </Select>
+
         <TextField
           type="text"
           name="description"
           label="Description"
           value={desc}
           onChange={(newValue) => setDesc(newValue.target.value)}
+          style={{ marginBottom: '16px' }}
         />
 
-        <button type="submit">Create Event</button>
+        <button type="submit" style={{ padding: '8px', background: 'green', color: 'white', cursor: 'pointer' }}>
+          Create Event
+        </button>
       </form>
     </div>
   );
