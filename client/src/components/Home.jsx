@@ -83,19 +83,29 @@ import axios from 'axios'
 import actions from '../actions'
 import '../App.css';
 import EventForm from './EventForm';
+import ScheduleForm from './ScheduleForm';
 import { Link } from 'react-router-dom';
 // import Event from '../../../server/data/event';
 import EventCalendar from './EventCalendar';
 
 function Home() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
-  const openModal = () => {
-    setIsModalOpen(true);
+  const openEventModal = () => {
+    setIsEventModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const closeEventModal = () => {
+    setIsEventModalOpen(false);
+  };
+
+  const openScheduleModal = () => {
+    setIsScheduleModalOpen(true);
+  };
+
+  const closeScheduleModal = () => {
+    setIsScheduleModalOpen(false);
   };
 
 
@@ -136,14 +146,25 @@ function Home() {
       <br/>
       <Link to="/events-today">View Today's Events</Link>
       <br/>
-      <button onClick={openModal}>Open Event Form</button>
-      {isModalOpen && (
+      <button onClick={openEventModal}>Open Event Form</button>
+      {isEventModalOpen && (
         <div className="modal-overlay">
           <div className="modal">
-            <span className="close" onClick={closeModal}>
+            <span className="close" onClick={closeEventModal}>
               &times;
             </span>
             <EventForm />
+          </div>
+        </div>
+      )}
+      <button onClick={openScheduleModal}>Add Schedule</button>
+      {isScheduleModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <span className="close" onClick={closeScheduleModal}>
+              &times;
+            </span>
+            <ScheduleForm />
           </div>
         </div>
       )}

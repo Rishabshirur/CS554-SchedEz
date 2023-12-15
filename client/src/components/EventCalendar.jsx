@@ -24,13 +24,8 @@ const EventDetails = ({ event, onClose }) => (
 const EventCalendar = () => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const checkboxOptions = [
-    { label: "work", value: "work" },
-    { label: "home", value: "home" },
-    // ... add more options as needed
-  ];
+  const [checkboxOptions,setCheckboxOptions] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState([]);
-  console.log(selectedOptions);
   // console.log("1",events)
   var currentUser = useSelector((state) => state.userInfo.currentUser);
   // console.log("currentuser",currentUser)
@@ -41,6 +36,10 @@ const EventCalendar = () => {
       try {
         const response = await axios.get(`http://localhost:3000/event/${auth.currentUser.uid}`); // Replace with your actual API endpoint
         setEvents(response.data.events);
+
+        const response1 = await axios.get(`http://localhost:3000/schedule/${auth.currentUser.uid}`); // Replace with your actual API endpoint
+        console.log("checkBox Options",response1)
+        setCheckboxOptions(response1.data.schedules);
       } catch (error) {
         console.error('Error fetching events:', error);
       }
@@ -126,17 +125,17 @@ const EventCalendar = () => {
   return (
     <div>
 
-{checkboxOptions.map((option) => (
+{checkboxOptions && checkboxOptions.map((option) => (
     <FormControlLabel
-      key={option.value}
+      key={option.schedule_name}
       control={
         <Checkbox
-          checked={selectedOptions.includes(option.value)}
+          checked={selectedOptions.includes(option.schedule_name)}
           onChange={handleCheckboxChange}
-          value={option.value}
+          value={option.schedule_name}
         />
       }
-      label={option.label}
+      label={option.schedule_name}
     />
   ))}
       <Calendar

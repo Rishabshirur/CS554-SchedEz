@@ -13,7 +13,7 @@ const createSchedule = async (userId, scheduleName) => {
     }
 
     try {
-        message = validations.checkString(scheduleName, "Schedule Name");
+        scheduleName = validations.checkString(scheduleName, "Schedule Name");
       } catch (e) {
         errors.push(e?.message);
       }
@@ -24,8 +24,7 @@ const createSchedule = async (userId, scheduleName) => {
 
     const userCollection = await users();
     const user = await userCollection.findOne(
-    { _id: new ObjectId(userId) },
-    { password: 0 }
+    { uid: userId }
   );
   if (!user) {
     throw [404, "User not found with this userId "];
@@ -33,12 +32,12 @@ const createSchedule = async (userId, scheduleName) => {
 
     const scheduleCollection = await schedules();
     const newSchedule = {
-        user_id: ObjectId(userId),
+        userId: userId,
         schedule_name: scheduleName,
         created_at: new Date(),
         updated_at: new Date(),
     }
-    const insert = await scheduleCollection.insert(newSchedule)
+    const insert = await scheduleCollection.insertOne(newSchedule)
 
     if (!insert.acknowledged || !insert.insertedId)
     throw [404, "Could not create new schedule"];
@@ -78,12 +77,12 @@ const getScheduleByUser = async (userId) => {
     }
   
     const scheduleCollection = await schedules();
-    const schedules = await scheduleCollection.find({ userId: userId }).toArray();
+    const schedule = await scheduleCollection.find({ userId: userId }).toArray();
   
-    if (schedules.length === 0) {
+    if (schedule.length === 0) {
       throw [404,"No schedules found for this user"];
     }
-    return schedules;
+    return schedule;
   };
 
   const removeSchedule = async (scheduleId) => {

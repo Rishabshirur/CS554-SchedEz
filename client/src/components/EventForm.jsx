@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import actions from '../actions';
 import axios from 'axios';
+import { getAuth } from 'firebase/auth';
 import TextField from '@mui/material/TextField';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -22,7 +23,10 @@ function EventForm() {
   dayjs.tz.setDefault('America/New_York');
   const [startDateTime, setStartDateTime] = React.useState(dayjs().tz('America/New_York'));
   const [endDateTime, setEndDateTime] = React.useState(dayjs().tz('America/New_York'));
+  const [checkboxOptions,setCheckboxOptions] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+  let auth = getAuth();
   const [eventData, setEventData] = useState({
     eventName: '',
     dateTime: new Date(), 
@@ -42,6 +46,19 @@ function EventForm() {
     setSchedule(event.target.value);
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response1 = await axios.get(`http://localhost:3000/schedule/${auth.currentUser.uid}`); // Replace with your actual API endpoint
+        console.log("checkBox Options",response1)
+        setCheckboxOptions(response1.data.schedules);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+
+    fetchData();
+  }, [auth.currentUser.uid]);
   const dispatch = useDispatch();
   let currentUserState = useSelector((state) => state.userInfo.currentUser);
 
@@ -101,6 +118,22 @@ function EventForm() {
       });
   };
 
+  var scheduleSelect = (
+    <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select-schedule"
+          value={''}
+          label="Schedule"
+          onChange={handleChangeSchedule}
+        >
+          {checkboxOptions &&  checkboxOptions.map((option) => {
+            {console.log(option)}
+            return <MenuItem value={option.schedule_name} >{option.schedule_name}</MenuItem>
+          })}
+        </Select>
+  )
+  console.log(scheduleSelect);
+
   return (
     <div>
       <h2>Create Event</h2>
@@ -147,17 +180,8 @@ function EventForm() {
         </Select>
 
         <InputLabel id="demo-simple-select-label">Schedule</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select-schedule"
-          value={"work"}
-          label="Schedule"
-          onChange={handleChangeSchedule}
-        >
-          <MenuItem value={"work"}>Work</MenuItem>
-          <MenuItem value={"home"}>Home</MenuItem>
-        </Select>
-
+        
+        {scheduleSelect}
         <TextField
           type="text"
           name="description"
