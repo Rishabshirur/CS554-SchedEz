@@ -50,6 +50,7 @@ import EventList from './components/EventList';
 import EventListingPage from './components/EventListingPage';
 import EventDetail from './components/EventDetail';
 import UpdateProfile from './components/UpdateProfile';
+import EventsToday from './components/EventsToday';
 function App() {
   return (
     <AuthProvider>
@@ -58,7 +59,7 @@ function App() {
           <Navigation />
         </header>
         <Routes>
-          <Route path='/' element={<Home />} />
+          <Route path='/' element={<Landing />} />
           <Route path='/home' element={<PrivateRoute />}>
             <Route path='/home' element={<Home />} />
           </Route>
@@ -70,6 +71,7 @@ function App() {
           <Route path='/all-events' element= {<EventListingPage/>} />
           <Route path="/event/:eventId" element={<EventDetail/>} />
           <Route path="/update-profile" element={<UpdateProfile/>} />
+          <Route path='/events-today' element={<EventsToday/>}/>
         </Routes>
       </div>
     </AuthProvider>

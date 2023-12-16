@@ -23,11 +23,12 @@ router.post("/", async (req, res) => {
       );
     } catch (e) {
       console.log(e);
+      console.error(e);
       errors.push(e?.message);
     }
-  
+  console.log("error check",errors)
     if (errors.length > 0) {
-      return res.status(400).send(errors);
+      return res.status(400).send(errors.message);
     }
   
     try {
@@ -37,6 +38,7 @@ router.post("/", async (req, res) => {
       );
       return res.json(result);
     } catch (e) {
+      console.error(e);
       const msg = e?.[1] || e?.message;
       return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
     }

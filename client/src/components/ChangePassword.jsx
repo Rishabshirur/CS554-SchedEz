@@ -75,6 +75,42 @@ useEffect(() => {},[userName])
       <div>
         {pwMatch && <h4 className='error'>{pwMatch}</h4>}
         <h2>Hi {userName}, You can view and update your Profile here</h2>
+        <form onSubmit={submitChangeProfileForm}>
+          <div className='form-group'>
+            <label>
+              User:
+              <input
+                className='form-control'
+                name='username'
+                id='username'
+                type='text'
+                defaultValue={currentUser.displayName}
+              />
+            </label>
+          </div>
+          <div className='form-group'>
+          <img
+					// src={
+					// 	userData.imageUrl
+					// 		? userData.imageUrl
+					// 		: 'https://via.placeholder.com/400.jpg?text=Profile+Image'
+					// }
+					alt="profile-picture"
+					className="profile-img"
+				/>
+				<input
+					type="file"
+					onChange={handleChange}
+					accept="image/jpeg, image/png, .jpeg, .jpg, .png"
+					className="image-input"
+				/>
+				{/* {loading ? <Spin /> : null} */}
+
+                </div>
+          <button className='button' type='submit'>
+            Update
+          </button>
+        </form>
         <form onSubmit={submitChangePasswordForm}>
           <div className='form-group'>
             <label>
@@ -124,42 +160,7 @@ useEffect(() => {},[userName])
             Change Password
           </button>
         </form>
-        <form onSubmit={submitChangeProfileForm}>
-          <div className='form-group'>
-            <label>
-              User:
-              <input
-                className='form-control'
-                name='username'
-                id='username'
-                type='text'
-                defaultValue={currentUser.displayName}
-              />
-            </label>
-          </div>
-          <div className='form-group'>
-          <img
-					// src={
-					// 	userData.imageUrl
-					// 		? userData.imageUrl
-					// 		: 'https://via.placeholder.com/400.jpg?text=Profile+Image'
-					// }
-					alt="profile-picture"
-					className="profile-img"
-				/>
-				<input
-					type="file"
-					onChange={handleChange}
-					accept="image/jpeg, image/png, .jpeg, .jpg, .png"
-					className="image-input"
-				/>
-				{/* {loading ? <Spin /> : null} */}
-
-                </div>
-          <button className='button' type='submit'>
-            Update
-          </button>
-        </form>
+       
         <br />
       </div>
     );

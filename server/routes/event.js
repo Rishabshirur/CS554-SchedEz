@@ -55,9 +55,9 @@ router.post("/", async (req, res) => {
   
 
   router.patch("/:eventId", async (req, res) => {
-    const eventId = req.params.eventId;
+    let eventId = req.params.eventId;
     const updatedData = req.body;
-  
+
     try {
       eventId = validations.checkId(eventId, "eventId");
   
@@ -93,6 +93,76 @@ router.post("/", async (req, res) => {
     } catch (e) {
       const msg = e?.[1] || e?.message;
       return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
+    }
+  });
+
+  router.get('/filter/colorCode/:colorCode', async (req, res) => {
+    try {
+      const colorCode = req.params.colorCode;
+      const events = await eventData.getEventsByColorCode(colorCode);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by color code:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  router.get('/:userId/filter/colorCode/:colorCode', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const colorCode = req.params.colorCode;
+
+      const events = await eventData.getEventsByColorCodeperUser(userId, colorCode);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by color code:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  router.get('/filter/startDate/:startDate', async (req, res) => {
+    try {
+      const startDate = req.params.startDate;
+      const events = await eventData.getEventsByStartDate(startDate);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by start date:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  router.get('/filter/endDate/:endDate', async (req, res) => {
+    try {
+      const endDate = req.params.endDate;
+      const events = await eventData.getEventsByEndDate(endDate);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by end date:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  router.get('/filter/classification/:classification', async (req, res) => {
+    try {
+      const classification = req.params.classification;
+      const events = await eventData.getEventsByClassification(classification);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by classification:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  router.get('/:userId/filter/classification/:classification', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const classification = req.params.classification;
+
+      const events = await eventData.getEventsByClassificationByUser(userId, classification);
+      res.json({ events });
+    } catch (error) {
+      console.error('Error filtering events by color code:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   });
 

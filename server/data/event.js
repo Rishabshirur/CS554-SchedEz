@@ -44,6 +44,8 @@ const createEvent = async (userId, eventData) => {
       end_datetime: eventData.endDateTime,
       color_code: eventData.color,
       classification: eventData.desc,
+      schedule_name: eventData.schedule,
+      scheduleId: eventData.scheduleId,
       created_at: new Date(),
       updated_at: new Date(),
     };
@@ -128,18 +130,23 @@ const createEvent = async (userId, eventData) => {
       if (!existingEvent) {
         throw new Error(`Event not found with id ${eventId}`);
       }
-  
-      const updatedEvent = {
-        ...existingEvent,
-        ...updatedData,
-        updated_at: new Date(),
-      };
-  
+     
+      let updatedEvent = {};
+
+      (updatedData.event_name) ? (updatedEvent.event_name = updatedData.event_name) : (updatedEvent.event_name = existingEvent.event_name);
+      (updatedData.start_datetime) ? (updatedEvent.start_datetime = updatedData.start_datetime) : (updatedEvent.start_datetime = existingEvent.start_datetime);
+      (updatedData.end_datetime) ? (updatedEvent.end_datetime = updatedData.end_datetime) : (updatedEvent.end_datetime = existingEvent.end_datetime);
+      (updatedData.color_code) ? (updatedEvent.color_code = updatedData.color_code) : (updatedEvent.color_code = existingEvent.color_code);
+      (updatedData.classification) ? (updatedEvent.classification = updatedData.classification) : (updatedEvent.classification = existingEvent.classification);
+      
+      if(updatedEvent){
+        updatedEvent.updated_at = new Date()
+      }
       const result = await eventsCollection.updateOne(
         { _id: new ObjectId(eventId) },
         { $set: updatedEvent }
       );
-  
+
       if (result.modifiedCount === 0) {
         throw new Error(`Failed to update event with id ${eventId}`);
       }
@@ -242,7 +249,79 @@ const createEvent = async (userId, eventData) => {
   
     return eventsWithinDateRange;
   };
+
+  const getEventsByColorCode = async (colorCode) => {
+
+    const eventsCollection = await events();
   
+    const eventsByColorCode = await eventsCollection.find({
+      color_code: colorCode,
+    }).toArray();
+  
+    return eventsByColorCode;
+  };
 
+  const getEventsByColorCodeperUser = async (userId, colorCode) => {
+    const eventsCollection = await events();
+  
+    const eventsByColorCode = await eventsCollection.find({
+      userId: userId,
+      color_code: colorCode,
+    }).toArray();
+  
+    return eventsByColorCode;
+  };
+  
+     const getEventsByStartDate = async (startDate) => {
+  
+      const eventsCollection = await events();
+  
+      const eventsByStartDate= await eventsCollection.find({
+      start_datetime: { $gte: new Date(startDate) },
+    }).toArray();
+  
+    return eventsByStartDate;
+  };
+  
+  
+   const getEventsByEndDate = async (endDate) => {
+    console.log('Start Date:', startDate);
+  
+    const eventsCollection = await events();
+  
+    const eventByEndDate = await eventsCollection.find({
+      end_datetime: { $lte: new Date(endDate) },
+    }).toArray();
+  
+    return eventByEndDate;
+  };
+  
+  
+  
+   const getEventsByClassification = async (classification) => {
+  
+    const eventsCollection = await events();
+  
+    const eventByClassification = await eventsCollection.find({
+      classification,
+    }).toArray();
+  
+    return eventByClassification;
+  };
 
-  export default {createEvent,getEventById,getEventsByUser,removeEvent,updateEvent,getEventsBySchedule,checkEventAvailability,getEventsByDateRange}
+  const getEventsByClassificationByUser = async (userId,classification) => {
+
+    const eventsCollection = await events();
+  
+    const eventByClassification = await eventsCollection.find({
+      userId : userId,
+      classification : classification,
+    }).toArray();
+  
+    return eventByClassification;
+  };
+  
+  
+  
+    export default {createEvent,getEventById,getEventsByUser,removeEvent,updateEvent,getEventsBySchedule,
+      checkEventAvailability,getEventsByDateRange,getEventsByColorCode,getEventsByStartDate,getEventsByEndDate,getEventsByClassification,getEventsByColorCodeperUser,getEventsByClassificationByUser}
