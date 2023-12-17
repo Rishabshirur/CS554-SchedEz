@@ -7,7 +7,7 @@ function Account() {
   return (
     <div className='card'>
       <h2>Account Page</h2>
-      {/* <ChangePassword /> */}
+      <ChangePassword />
       <SignOutButton />
       <UpdateProfile/>
     </div>

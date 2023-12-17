@@ -89,7 +89,7 @@ useEffect(() => {},[userName])
             </label>
           </div>
           <div className='form-group'>
-          <img
+          {/* <img
 					// src={
 					// 	userData.imageUrl
 					// 		? userData.imageUrl
@@ -103,7 +103,7 @@ useEffect(() => {},[userName])
 					onChange={handleChange}
 					accept="image/jpeg, image/png, .jpeg, .jpg, .png"
 					className="image-input"
-				/>
+				/> */}
 				{/* {loading ? <Spin /> : null} */}
 
                 </div>
