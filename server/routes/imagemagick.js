@@ -3,11 +3,20 @@ import multer from 'multer';
 import im from 'imagemagick';
 import fs from 'fs';
 import path from 'path';
+import { ObjectId } from 'mongodb';
+
+import { users } from "../config/mongoCollections.js";
+// import { userData } from '../data';
 const router = express.Router();
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 
 
-import { getUserId, uploadImage } from '../../client/src/firebase/FirebaseFunctions.js';
+// import { getUserId, uploadImage } from '../../client/src/firebase/FirebaseFunctions.js';
 
 if (process.platform == 'win32') {
 	im.convert.path = 'C:/Program Files/ImageMagick-7.0.10-Q16-HDRI/convert';
@@ -40,25 +49,42 @@ const transformImage = (image) => {
 };
 
 router.post(
-	'/:id',
+	'/user/:id/photo',
 	upload.single('file'),
 	async (req, res, next) => {
+		console.log(req.body)
 		console.log(JSON.stringify(req.body));
+		console.log('in route image')
         const id = req.params.id;
+		let profilePictureUrl = '';
 		if (req.file) {
-            try {
+			const fileBuffer = req.file.buffer;
+			const fileName = `profile-pic-${Date.now()}.png`
+			const filePath = path.join(__dirname, '../public/uploads/', fileName)
+			fs.writeFileSync(filePath, fileBuffer);
+			profilePictureUrl = `/uploads/${fileName}`
+			const update = {};
+
+			// Add 'profilePicture' field to the update object
+			update['profilePicture'] = profilePictureUrl;
+			console.log('ID:', id);
+			// Use updateOne method to update the document
+			const userCollection = await users();
+			await userCollection.updateOne({ uid: id }, { $set: update });
+			// await users.updateOne({id},{$set: {profilePicture:profilePictureUrl,}});
+            // try {
                 
-			let t = await transformImage(req.file.buffer);
-			let uid = await getUserId(id);
-            if (uid) {
+			// let t = await transformImage(req.file.buffer);
+			// let uid = await getUserId(id);
+            // if (uid) {
                 
-				let url = await uploadImage(uid, req.file, t);
-				console.log(url);
-				res.json({ img: url });
-			} else res.status(500).json({ message: 'No token id found' });
-            } catch (error) {
-                console.log(error)
-            }
+			// 	let url = await uploadImage(uid, req.file, t);
+			// 	console.log(url);
+			// 	res.json({ img: url });
+			// } else res.status(500).json({ message: 'No token id found' });
+            // } catch (error) {
+            //     console.log(error)
+            // }
 		} else {
 			res.status(400).json({ message: 'Error : No file attached' });
 		}
