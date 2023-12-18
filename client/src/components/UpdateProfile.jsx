@@ -321,23 +321,52 @@ function UpdateProfile() {
     console.log(e.target.files[0]);
   };
 
+  // const submitForm = async (event) => {
+  //   event.preventDefault();
+  //   const { username, email } = event.target.elements;
+  //   let obj = {
+  //     email: email.value,
+  //     username: username.value
+  //   };
+  //   try {
+  //     await updateUserProfile(email.value, username.value);
+  //     console.log(file);
+  //     let { data } = await axios.post(
+  //       `http://localhost:3000/image/user/${currentUser.uid}/photo`,
+  //       { file: file, userId: currentUser.uid },
+  //       {
+  //         headers: {
+  //           'Content-Type': `multipart/form-data;`
+  //         }
+  //       }
+  //     );
+  //     console.log(data);
+  //   } catch (e) {
+  //     console.error(e);
+  //   }
+  // };
+
   const submitForm = async (event) => {
     event.preventDefault();
     const { username, email } = event.target.elements;
-    let obj = {
-      email: email.value,
-      username: username.value
-    };
+  
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('userId', currentUser.uid);
+  
+    formData.append('username', username.value);
+    formData.append('email', email.value);
+  
     try {
       await updateUserProfile(email.value, username.value);
-      console.log(file);
+  
       let { data } = await axios.post(
         `http://localhost:3000/image/user/${currentUser.uid}/photo`,
-        { file: file, userId: currentUser.uid },
+        formData,
         {
           headers: {
-            'Content-Type': `multipart/form-data;`
-          }
+            'Content-Type': 'multipart/form-data',
+          },
         }
       );
       console.log(data);
@@ -345,6 +374,7 @@ function UpdateProfile() {
       console.error(e);
     }
   };
+  
 
   console.log("prf", userData?.profilePicture)
 
