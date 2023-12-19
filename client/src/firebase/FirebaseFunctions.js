@@ -78,6 +78,27 @@ async function updateUserProfile(displayName) {
   }
 }
 
+async function updateUserProfilePhoto(photoURL) {
+  const auth = getAuth();
+
+  try {
+    // Update user profile
+    await updateProfile(auth.currentUser, { photoURL});
+    //await updateEmail(auth.currentUser, email);
+
+    // // Post user data to your server
+    // await axios.post("http://localhost:3000/user/all-users", {
+    //   id: user.uid,
+    //   username: user.displayName,
+    //   email: user.email
+    // });
+
+    console.log("User profile photo updated successfully.");
+  } catch (error) {
+    console.error("Error creating user:", error.message);
+  }
+}
+
   async function doChangePassword(email, oldPassword, newPassword) {
     const auth = getAuth();
     let credential = EmailAuthProvider.credential(email, oldPassword);
@@ -117,6 +138,7 @@ async function updateUserProfile(displayName) {
     doCreateUserWithEmailAndPassword,
     doSocialSignIn,
     doSignInWithEmailAndPassword,
+    updateUserProfilePhoto,
     doPasswordReset,
     doSignOut,
     doChangePassword,

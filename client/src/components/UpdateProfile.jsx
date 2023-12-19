@@ -275,7 +275,7 @@
 
 
 import '../App.css';
-import {updateUserProfile} from '../firebase/FirebaseFunctions';
+import {updateUserProfile, updateUserProfilePhoto} from '../firebase/FirebaseFunctions';
 import {
     createUserWithEmailAndPassword,
     signOut,
@@ -350,17 +350,18 @@ function UpdateProfile() {
 
   const submitForm = async (event) => {
     event.preventDefault();
-    const { username, email } = event.target.elements;
+    // const { username, email } = event.target.elements;
   
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('userId', currentUser.uid);
+    // formData.append('userId', currentUser.uid);
   
-    formData.append('username', username.value);
-    formData.append('email', email.value);
+    // formData.append('username', username.value);
+    // formData.append('email', email.value);
   
     try {
-      await updateUserProfile(email.value, username.value);
+      // await updateUserProfile(email.value, username.value);
+      await updateUserProfilePhoto(userData?.user?.profilePicture)
       let { data } = await axios.post(
         `http://localhost:3000/image/user/${currentUser.uid}/photo`,
         formData,
@@ -387,7 +388,7 @@ function UpdateProfile() {
       <h2>Hi {currentUser.displayName}, You can view and update your Profile here</h2>
       <form onSubmit={submitForm} encType="multipart/form-data">
         <div className='form-group'>
-          <label>
+          {/* <label>
             User:
             <input
               className='form-control'
@@ -408,7 +409,7 @@ function UpdateProfile() {
               type='text'
               defaultValue={currentUser.email}
             />
-          </label>
+          </label> */}
         </div>
         <div className='form-group'>
         {userData && userData.user.profilePicture && (

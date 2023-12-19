@@ -75,8 +75,8 @@ useEffect(() => {},[userName])
       <div>
         {pwMatch && <h4 className='error'>{pwMatch}</h4>}
         <h2>Hi {userName}, You can view and update your Profile here</h2>
-        <form onSubmit={submitChangeProfileForm}>
-          <div className='form-group'>
+        {/* <form onSubmit={submitChangeProfileForm}>
+          {/* <div className='form-group'>
             <label>
               User:
               <input
@@ -87,7 +87,7 @@ useEffect(() => {},[userName])
                 defaultValue={currentUser.displayName}
               />
             </label>
-          </div>
+          </div> 
           <div className='form-group'>
           {/* <img
 					// src={
@@ -104,13 +104,13 @@ useEffect(() => {},[userName])
 					accept="image/jpeg, image/png, .jpeg, .jpg, .png"
 					className="image-input"
 				/> */}
-				{/* {loading ? <Spin /> : null} */}
+				{/* {loading ? <Spin /> : null} 
 
                 </div>
           <button className='button' type='submit'>
             Update
           </button>
-        </form>
+        </form> */}
         <form onSubmit={submitChangePasswordForm}>
           <div className='form-group'>
             <label>
