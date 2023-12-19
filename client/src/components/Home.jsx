@@ -87,11 +87,14 @@ import ScheduleForm from './ScheduleForm';
 import { Link } from 'react-router-dom';
 // import Event from '../../../server/data/event';
 import EventCalendar from './EventCalendar';
+import RequestModal from './requestModal';
 
 function Home() {
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shouldUpdateCalendar, setShouldUpdateCalendar] = useState(false);
+
+  
 
   const handleUpdateCalendar = () => {
     setShouldUpdateCalendar(!shouldUpdateCalendar);
@@ -173,6 +176,7 @@ function Home() {
           </div>
         </div>
       )}
+      <RequestModal/>
       <EventCalendar shouldUpdateCalendar={shouldUpdateCalendar}/>
     </div>
   );

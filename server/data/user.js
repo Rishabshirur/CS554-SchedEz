@@ -56,7 +56,8 @@ const create = async(
     // password : user.password,
     events: { attending: [], organizing: []},
     isActive: true,
-    profilePicture: ""
+    profilePicture: "",
+    requests: []
   };
 
   const insertInfo = await userCollection.insertOne(newUser);

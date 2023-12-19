@@ -36,8 +36,8 @@ function EventForm() {
   const [eventName, setEventName]= React.useState('')
   const [color, setColor] = React.useState('');
   const [userEvents, setUserEvents] = useState([]);
-  const [schedule,setSchedule] = useState('')
-  const [shareEvent,setShareEvent] = useState('')
+  const [schedule,setSchedule] = useState('');
+  const [shareEvent, setShareEvent] = useState('');
 
   const handleChange = (event) => {
     setColor(event.target.value);
@@ -185,7 +185,7 @@ function EventForm() {
         >
           {checkboxOptions &&
             checkboxOptions.map((option) => (
-              <MenuItem value={option.schedule_name} key={option.schedule_name}>
+              <MenuItem value={option._id} key={option.schedule_name}>
                 {option.schedule_name}
               </MenuItem>
             ))}
@@ -200,10 +200,10 @@ function EventForm() {
           style={{ marginBottom: '16px' }}
         />
 
-          <TextField
+        <TextField
           type="text"
           name="shareEvent"
-          label="Share Your Event"
+          label="Add people"
           value={shareEvent}
           onChange={(newValue) => setShareEvent(newValue.target.value)}
           style={{ marginBottom: '16px' }}

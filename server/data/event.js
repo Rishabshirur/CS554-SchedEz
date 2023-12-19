@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 import { users } from "../config/mongoCollections.js";
 import { schedules } from "../config/mongoCollections.js";
 import { events } from "../config/mongoCollections.js";
+import {requestData} from './index.js'
 import validations from '../validation.js'
 const createEvent = async (userId, eventData) => {
 // const createEvent = async (userId, scheduleId, eventData) => {
@@ -26,7 +27,6 @@ const createEvent = async (userId, eventData) => {
       throw [400, errors];
     }
   
-    
     console.log("in data events")
     // if (!user) {
     //   throw [404, "User not found with this userId"];
@@ -34,33 +34,58 @@ const createEvent = async (userId, eventData) => {
   
     const eventsCollection = await events();
     const newEvent = {
-      // userId: new ObjectId(userId),
+      
       userId: userId,
-      // scheduleId: new ObjectId(scheduleId),
       event_name: eventData.eventName,
-      // start_datetime: new Date(eventData.start_datetime),
-      // end_datetime: new Date(eventData.end_datetime),
       start_datetime: eventData.startDateTime,
       end_datetime: eventData.endDateTime,
       color_code: eventData.color,
       classification: eventData.desc,
       schedule_name: eventData.schedule,
-      scheduleId: eventData.scheduleId,
       created_at: new Date(),
       updated_at: new Date(),
     };
-    
+
+    let receiver_emailId;
+    let receiver;
   
+    const userCollection = await users();
+
+    if(eventData.shareEvent){
+    receiver_emailId = eventData.shareEvent
+    receiver = await userCollection.findOne(
+      { email: receiver_emailId}
+    );
+    if(!receiver){
+      throw [404, 'No user exists with emailId provided'];
+    }
+  }
     const insert = await eventsCollection.insertOne(newEvent);
     if (!insert.acknowledged || !insert.insertedId) {
       throw [404, "Could not create new event"];
     }
-    const userCollection = await users();
+
+    let obj={};
+    
     let user = await userCollection.findOne(
       { uid: userId}
     );
-    
-    console.log(user)
+    if(eventData.shareEvent){
+      obj.sender_email = user.email;
+      obj.event = newEvent;
+      receiver.requests.push(obj);
+    }
+    // const receiverUpdateInfo = await userCollection.findOneAndUpdate({ email: receiver_emailId}, {
+    //   $set: receiver
+    // }, {returnDocument: 'after'});
+    // if (receiverUpdateInfo.lastErrorObject.n === 0) {
+    //   throw  'Failed to add people to the event';
+    // }
+    // 
+    const receiverInsertInfo = await requestData.createRequest(user.email, receiver_emailId, newEvent);
+    if ( !receiverInsertInfo.requestId)
+      throw [404, "Could not add new request"];
+    // console.log(user)
     user.events.organizing.push(insert.insertedId.toString())
     const updatedInfo = await userCollection.findOneAndUpdate({ uid: userId }, {
       $set: user
@@ -68,7 +93,6 @@ const createEvent = async (userId, eventData) => {
     if (updatedInfo.lastErrorObject.n === 0) {
       throw  'Failed to update the user collection';
     }
-    
   
     const insertedId = insert.insertedId.toString();
     return { eventId: insertedId };

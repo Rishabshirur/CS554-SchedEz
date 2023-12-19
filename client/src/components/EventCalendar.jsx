@@ -219,9 +219,9 @@ const EventCalendar = ({ shouldUpdateCalendar }) => {
               key={option.schedule_name}
               control={
                 <Checkbox
-                  checked={selectedOptions.includes(option.schedule_name)}
+                  checked={selectedOptions.includes(option._id)}
                   onChange={handleCheckboxChange}
-                  value={option.schedule_name}
+                  value={option._id}
                   style={{ color: option.color, marginRight: '5px' }}
                 />
               }
