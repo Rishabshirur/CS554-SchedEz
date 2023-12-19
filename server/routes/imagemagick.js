@@ -134,7 +134,7 @@ router.post(
 			fs.writeFileSync(filePath, fileBuffer);
 			const transformedImagePath = await transformImage(filePath);
 			const profilePictureUrl = `/uploads/transformed-image.png`;
-
+			console.log(id);
 			const update = {};
 			update['profilePicture'] = profilePictureUrl;
 

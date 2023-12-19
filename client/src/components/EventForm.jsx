@@ -37,6 +37,7 @@ function EventForm() {
   const [color, setColor] = React.useState('');
   const [userEvents, setUserEvents] = useState([]);
   const [schedule,setSchedule] = useState('')
+  const [shareEvent,setShareEvent] = useState('')
 
   const handleChange = (event) => {
     setColor(event.target.value);
@@ -76,7 +77,8 @@ function EventForm() {
       startDateTime,
       endDateTime,
       color,
-      schedule
+      schedule,
+      shareEvent
     }
     console.log(obj)
 
@@ -195,6 +197,15 @@ function EventForm() {
           label="Description"
           value={desc}
           onChange={(newValue) => setDesc(newValue.target.value)}
+          style={{ marginBottom: '16px' }}
+        />
+
+          <TextField
+          type="text"
+          name="shareEvent"
+          label="Share Your Event"
+          value={shareEvent}
+          onChange={(newValue) => setShareEvent(newValue.target.value)}
           style={{ marginBottom: '16px' }}
         />
 
