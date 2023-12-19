@@ -299,8 +299,10 @@ function UpdateProfile() {
   const { currentUser } = useContext(AuthContext);
   const [file, setFile] = useState(null);
   const [userData, setUserData] = useState(null);
-
+  const [image, setImage] = useState(null);
+  console.log("imageName",image)
   useEffect(() => {
+    console.log("useEffect running")
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/user/${currentUser.uid}`);
@@ -359,7 +361,6 @@ function UpdateProfile() {
   
     try {
       await updateUserProfile(email.value, username.value);
-  
       let { data } = await axios.post(
         `http://localhost:3000/image/user/${currentUser.uid}/photo`,
         formData,
@@ -369,6 +370,8 @@ function UpdateProfile() {
           },
         }
       );
+      console.log(file.name)
+      setImage(file.name);
       console.log(data);
     } catch (e) {
       console.error(e);
@@ -410,7 +413,7 @@ function UpdateProfile() {
         <div className='form-group'>
         {userData && userData.user.profilePicture && (
           <img
-            src={`http://localhost:3000${userData.user.profilePicture}`}
+            src={`http://localhost:3000${userData.user.profilePicture}?${image}`}
             alt="Profile"
             style={{ width: '200px', height: '200px' }}
           />
