@@ -1,7 +1,8 @@
 import {combineReducers} from '@reduxjs/toolkit';
-import userInfo from './userInfo.js';
+import {userInfo,image} from './userInfo.js';
 const rootReducer = combineReducers({
-  userInfo: userInfo
+  userInfo: userInfo,
+  image: image
 });
 
 export default rootReducer;

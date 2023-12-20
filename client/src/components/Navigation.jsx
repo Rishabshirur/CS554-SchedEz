@@ -5,6 +5,7 @@ import SignOutButton from './SignOut';
 import {useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import '../App.css';
+import { useSelector } from 'react-redux';
 
 const Navigation = () => {
   const {currentUser} = useContext(AuthContext);
@@ -15,6 +16,7 @@ const Navigation = () => {
 const NavigationAuth = () => {
   // const {currentUser} = useContext(AuthContext);
   const [profilePicture, setProfilePicture] = useState(null);
+  let image = useSelector((state) => state.image.image)
   // console.log(currentUser)
   let auth = getAuth();
   console.log(auth.currentUser.photoURL);
@@ -28,7 +30,7 @@ const NavigationAuth = () => {
       {auth.currentUser && auth.currentUser.photoURL && (
           <div className='profile-picture'>
           <img
-            src={`http://localhost:3000${profilePicture}`}
+            src={`http://localhost:3000${profilePicture}?${image}`}
             alt="Profile"
             style={{ width: '50px', height: '50px' }}
           />
