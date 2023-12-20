@@ -6,20 +6,34 @@ function RequestModal(props) {
   const [requests, setRequests] = useState(null);
   let [event, setEvent] = useState('')
   let auth = getAuth();
+    // Code to run after the delay
 
-  useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/requests/${auth.currentUser.email}`);
-        console.log(response.data);
-        setRequests(response.data.requests);
-        setEvent(response.data.requests)
+        console.log('Delayed code executed after 10000 milliseconds');
+          const response = await axios.get(`http://localhost:3000/requests/${auth.currentUser.email}`);
+          console.log(response.data);
+          setRequests(response.data.requests);
+          setEvent(response.data.requests)
+    
       } catch (error) {
         console.error('Error fetching requests:', error);
       }
     };
+    const runAsyncFunction = () => {
+      fetchData().catch((error) => {
+        console.error('Error in asyncFunction:', error);
+      });
+    };
+  useEffect(() => {
 
-    fetchData();
+    runAsyncFunction();
+
+    const intervalId = setInterval(runAsyncFunction, 5000);
+    return () => {
+      clearInterval(intervalId);
+    };
+
   }, []);
 
   const handleAccept = async(req) => {
@@ -50,7 +64,9 @@ function RequestModal(props) {
         eventId: req.event._id,
       });
 
-      
+      const response = await axios.get(`http://localhost:3000/requests/${auth.currentUser.email}`);
+      setRequests(response.data.requests);
+      console.log(`Accepted invitation`)
       console.log(`Invite request rejected `);
     } catch (error) {
       console.error('Error accepting invitation:', error);
