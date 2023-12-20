@@ -58,8 +58,9 @@
 
 .App-header {
   background-color: #282c34;
-  height: 150px;
-  padding: 20px;
+  height: 4%;
+  padding: 1%;
+  margin-bottom: 3%;
   color: white;
 }
 
@@ -140,12 +141,21 @@ input {
   border-color: #282c34;
 }
 
+.button-home {
+  background: 'blue';
+  color: 'white';
+  padding: '10px 20px';
+  border: 'none';
+  cursor: 'pointer';
+  margin: '10px';
+}
+
 .card {
   box-shadow: 0 4px 8px 0 rgba(250, 243, 243, 0.2), 0 6px 20px 0 rgba(172, 143, 143, 0.19);
-  width: 50%;
+  width: 80%;
   margin: 10px auto 20px;
   height: auto;
-  padding: 20px;
+  padding: 5%;
 }
 /* 
 .modal-overlay {
