@@ -6,44 +6,65 @@ import { users, requests } from '../config/mongoCollections.js';
 
 
 const router = Router();
-
-router.post("/", async (req, res) => {
-    let requestInfo = req.body;
+router.get("/allRequests/:emailId", async (req, res) => {
+  try {
+    let emailId = req.params.emailId;
     let errors = [];
     try {
-        requestInfo.sender_email = validations.checkId(requestInfo.sender_email, "userId");
+      emailId = validations.checkMailID(emailId, "emailId");
     } catch (e) {
       console.log(e);
       errors.push(e?.message);
     }
-  
-    try {
-        requestInfo.scheduleName = validations.checkString(
-            requestInfo.scheduleName,
-        "schedule name"
-      );
-    } catch (e) {
-      console.log(e);
-      console.error(e);
-      errors.push(e?.message);
-    }
-  console.log("error check",errors)
     if (errors.length > 0) {
-      return res.status(400).send(errors.message);
+      return res.status(400).send(errors);
     }
-  
-    try {
-      const result = await requestData.createRequest(
-        requestInfo.userId,
-        requestInfo.scheduleName
-      );
-      return res.json(result);
-    } catch (e) {
-      console.error(e);
-      const msg = e?.[1] || e?.message;
-      return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
-    }
-  });
+
+    const requests = await requestData.getAllRequestsByEmail(emailId);
+    return res.json({ requests });
+  } catch (e) {
+    const msg = e?.[1] || e?.message;
+    return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
+  }
+})
+
+router.post("/", async (req, res) => {
+  let requestInfo = req.body;
+  let errors = [];
+  try {
+      requestInfo.sender_email = validations.checkId(requestInfo.sender_email, "userId");
+  } catch (e) {
+    console.log(e);
+    errors.push(e?.message);
+  }
+
+  try {
+      requestInfo.scheduleName = validations.checkString(
+          requestInfo.scheduleName,
+      "schedule name"
+    );
+  } catch (e) {
+    console.log(e);
+    console.error(e);
+    errors.push(e?.message);
+  }
+  console.log("error check",errors)
+  if (errors.length > 0) {
+    return res.status(400).send(errors.message);
+  }
+
+  try {
+    const result = await requestData.createRequest(
+      requestInfo.userId,
+      requestInfo.scheduleName
+    );
+    return res.json(result);
+  } catch (e) {
+    console.error(e);
+    const msg = e?.[1] || e?.message;
+    return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
+  }
+});
 
   router.get("/:emailId", async (req, res) => {
     try {

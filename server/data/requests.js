@@ -59,6 +59,30 @@ const getRequestById = async (id) => {
     return schedule || [];
   };
 
+  const getAllRequestsByEmail = async (email) => {
+    let errors = [];
+    try {
+      email = validations.checkMailID(email, "emailId");
+    } catch (e) {
+      errors.push(e?.message);
+    }
+  
+    if (errors.length > 0) {
+      throw [400, errors];
+    }
+  
+    const requestCollection = await requests();
+    const requestList = await requestCollection.find({
+      $or: [{ sender_email: email }, { receiver_email: email }]
+    }).sort({ "event.created_at": -1 }).toArray();
+  
+    if (requestList.length === 0) {
+      throw [404,"No requests found for this user"];
+    }
+    return requestList;
+  };
+
+
 const getRequestsByEmail = async (receiver_email) => {
     let errors = [];
     try {
@@ -72,7 +96,8 @@ const getRequestsByEmail = async (receiver_email) => {
     }
   
     const requestCollection = await requests();
-    const requestList = await requestCollection.find({ receiver_email: receiver_email, status: "pending" }).toArray();
+    const requestList = await requestCollection.find({ receiver_email: receiver_email, status: "pending" })
+    .sort({ "event.created_at": -1 }).toArray();
   
     if (requestList.length === 0) {
       throw [404,"No requests found for this user"];
@@ -130,4 +155,4 @@ const getRequestsByEmail = async (receiver_email) => {
   };
   
 
-export default {createRequest, getRequestsByEmail}
+export default {createRequest, getRequestsByEmail, getAllRequestsByEmail}

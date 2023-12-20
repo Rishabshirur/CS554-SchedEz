@@ -153,6 +153,7 @@ function Home() {
       <Link to="/all-events">View My All Events</Link>
       <br/>
       <Link to="/events-today">View Today's Events</Link>
+      <Link to="/invites">View invites</Link>
       <br/>
       <button onClick={openEventModal}>Open Event Form</button>
       {isEventModalOpen && (

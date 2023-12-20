@@ -216,7 +216,7 @@ const EventCalendar = ({ shouldUpdateCalendar }) => {
         {checkboxOptions &&
           checkboxOptions.map((option) => (
             <FormControlLabel
-              key={option.schedule_name}
+              key={option._id}
               control={
                 <Checkbox
                   checked={selectedOptions.includes(option._id)}
