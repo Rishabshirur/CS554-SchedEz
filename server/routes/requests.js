@@ -2,6 +2,7 @@ import {Router} from 'express';
 import {requestData} from '../data/index.js'
 import { ObjectId } from "mongodb";
 import validations from '../validation.js'
+import { users, requests } from '../config/mongoCollections.js';
 
 
 const router = Router();
@@ -66,43 +67,90 @@ router.post("/", async (req, res) => {
     }
   });
 
-  router.delete("/:id", async (req, res) => {
-    const id = req.params.id;
-  
-    if (!ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid schedule ID" });
-    }
-  
+  router.post("/accept", async (req, res) => {
+    let requestInfo = req.body;
+    let errors = [];
     try {
-      const success = await scheduleData.removeSchedule(id);
-      if (!success) {
-        return res.status(404).json({ message: "Schedule not found" });
-      }
-      return res.json({ scheduleId: id, deleted: true });
+        requestInfo.requestId = validations.checkId(requestInfo.requestId, "requestId");
+        requestInfo.userId = validations.checkId(requestInfo.userId, "userId");
+        requestInfo.eventId = validations.checkId(requestInfo.eventId, "eventId");
     } catch (e) {
-      const msg = e?.[1] || e?.message;
-      return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
+      console.log(e);
+      errors.push(e?.message);
     }
+    const userCollection= await users();
+    let result;
+    try {
+        
+        result = await userCollection.updateOne(
+            { "uid": requestInfo.userId }, 
+            {
+              $push: { "events.attending": requestInfo.eventId }
+            }
+          );
+        if (result.modifiedCount === 0) {
+            return res.status(404).send({ errors: ["Event not added"] });
+        }  
+        
+    } catch (e) {
+        console.error(e);
+        const msg = e?.[1] || e?.message;
+        return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
+    }
+
+    try {
+        const requestCollection = await requests();
+        const result1 = await requestCollection.updateOne(
+          { "_id": new ObjectId(requestInfo.requestId) }, 
+          {
+            $set: { status: "accepted" } 
+          }
+        );
+        console.log("result",result1)
+        if (result1.modifiedCount === 0) {
+            return res.status(404).send({ errors: ["Request not found"] });
+        }
+    } catch (e) {
+        console.error(e);
+        const msg = e?.[1] || e?.message;
+        return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
+    }
+
+
+    return res.json(result);
   });
 
-  router.patch("/:id", async (req, res) => {
-    const scheduleId = req.params.id;
-    const updatedData = req.body;
-  
+router.post("/reject", async (req, res) => {
+    let requestInfo = req.body;
+    let errors = [];
     try {
-      scheduleId = validations.checkId(scheduleId, "scheduleId");
-  
-      const success = await scheduleData.updateSchedule(scheduleId, updatedData);
-  
-      if (success) {
-        return res.json({ message: "Schedule updated successfully" });
-      } else {
-        return res.status(404).json({ message: `Schedule not found with id ${scheduleId}` });
-      }
+        requestInfo.requestId = validations.checkId(requestInfo.requestId, "requestId");
+        requestInfo.userId = validations.checkId(requestInfo.userId, "userId");
+        requestInfo.eventId = validations.checkId(requestInfo.eventId, "eventId");
     } catch (e) {
-      const msg = e?.[1] || e?.message;
-      return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
+      console.log(e);
+      errors.push(e?.message);
     }
-  });
 
+    let result;
+    try {
+        const requestCollection = await requests();
+        result = await requestCollection.updateOne(
+          { "_id": new ObjectId(requestInfo.requestId) }, 
+          {
+            $set: { status: "rejected" } 
+          }
+        );
+        // console.log("result",result)
+        if (result.modifiedCount === 0) {
+            return res.status(404).send({ errors: ["Request not found"] });
+        }
+        return res.json(result);
+
+    } catch (e) {
+        console.error(e);
+        const msg = e?.[1] || e?.message;
+        return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
+    }
+  })
   export default router;

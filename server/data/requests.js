@@ -12,8 +12,6 @@ const createRequest = async (sender_email, receiver_email, event) => {
     } catch (e) {
       errors.push(e?.message);
     }
-
-    
     
       if (errors.length > 0) {
         throw [400, errors];

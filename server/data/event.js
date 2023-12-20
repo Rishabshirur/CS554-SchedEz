@@ -52,29 +52,30 @@ const createEvent = async (userId, eventData) => {
     const userCollection = await users();
 
     if(eventData.shareEvent){
-    receiver_emailId = eventData.shareEvent
-    receiver = await userCollection.findOne(
-      { email: receiver_emailId}
-    );
-    if(!receiver){
-      throw [404, 'No user exists with emailId provided'];
+      receiver_emailId = eventData.shareEvent
+      receiver = await userCollection.findOne(
+        { email: receiver_emailId}
+      );
+      if(!receiver){
+        throw [404, 'No user exists with emailId provided'];
+      }
     }
-  }
     const insert = await eventsCollection.insertOne(newEvent);
     if (!insert.acknowledged || !insert.insertedId) {
       throw [404, "Could not create new event"];
     }
 
-    let obj={};
+    // let obj={};
     
     let user = await userCollection.findOne(
       { uid: userId}
     );
-    if(eventData.shareEvent){
-      obj.sender_email = user.email;
-      obj.event = newEvent;
-      receiver.requests.push(obj);
-    }
+    // if(eventData.shareEvent){
+    //   obj.sender_email = user.email;
+    //   obj.event = newEvent;
+    //   receiver.requests.push(obj);
+    // }
+
     // const receiverUpdateInfo = await userCollection.findOneAndUpdate({ email: receiver_emailId}, {
     //   $set: receiver
     // }, {returnDocument: 'after'});
@@ -82,9 +83,12 @@ const createEvent = async (userId, eventData) => {
     //   throw  'Failed to add people to the event';
     // }
     // 
-    const receiverInsertInfo = await requestData.createRequest(user.email, receiver_emailId, newEvent);
-    if ( !receiverInsertInfo.requestId)
-      throw [404, "Could not add new request"];
+
+    if(eventData.shareEvent){
+      const receiverInsertInfo = await requestData.createRequest(user.email, receiver_emailId, newEvent);
+      if ( !receiverInsertInfo.requestId)
+        throw [404, "Could not add new request"];
+    }
     // console.log(user)
     user.events.organizing.push(insert.insertedId.toString())
     const updatedInfo = await userCollection.findOneAndUpdate({ uid: userId }, {
@@ -119,11 +123,33 @@ const createEvent = async (userId, eventData) => {
 
   const getEventsByUser = async (userId) => { 
     const eventsCollection = await events();
-    const eventsList = await eventsCollection.find({ userId: userId }).toArray();
-    console.log(eventsList)
+    // const eventsList = await eventsCollection.find({ userId: userId }).toArray();
+    // console.log(eventsList)
   
+    // if (eventsList.length === 0) {
+    //   throw [404,"No events found for this user"];
+    // }
+    const usersCollection = await users();
+    const user = await usersCollection.findOne({ uid: userId });
+
+    if (!user) {
+      throw [404, "User not found"];
+    }
+
+    const { attending, organizing } = user.events;
+    const allEventIds = [...attending, ...organizing];
+
+    if (allEventIds.length === 0) {
+      throw [404, "No events found for this user"];
+    }
+
+
+    const eventsList = await eventsCollection.find({
+      "_id": { $in: allEventIds.map(id =>new ObjectId(id)) }
+    }).toArray();
+
     if (eventsList.length === 0) {
-      throw [404,"No events found for this user"];
+      throw [404, "No events found for this user"];
     }
     return eventsList;
   };
