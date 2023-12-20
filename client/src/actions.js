@@ -13,4 +13,10 @@ const setUser = (id, name, email ,events ,isActive) => ({
     type: 'UNSET_USER',
   });
 
-export default {setUser, unsetUser}
+  const setImage = (image) => ({
+    type: 'SET_IMAGE',
+    payload: {
+      image: image
+    }
+  });
+export default {setUser, unsetUser,setImage}

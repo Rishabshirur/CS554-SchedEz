@@ -291,15 +291,18 @@ import {
   } from 'firebase/auth';
 
 import { useContext, useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import { getAuth } from 'firebase/auth';
+import actions from '../actions';
 
 function UpdateProfile() {
   const { currentUser } = useContext(AuthContext);
   const [file, setFile] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [image, setImage] = useState(null);
+  const image = useSelector((state) => state.image.image);
+  const dispatch = useDispatch();
   console.log("imageName",image)
   useEffect(() => {
     console.log("useEffect running")
@@ -372,8 +375,8 @@ function UpdateProfile() {
         }
       );
       console.log(file.name)
-      setImage(file.name);
       console.log(data);
+      dispatch(actions.setImage(file.name))
     } catch (e) {
       console.error(e);
     }
