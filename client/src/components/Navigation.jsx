@@ -17,7 +17,7 @@ const NavigationAuth = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   // console.log(currentUser)
   let auth = getAuth();
-  console.log(auth.currentUser.photoURL);
+  console.log("imagemagick in docker",auth.currentUser.photoURL);
   useEffect(() => {
     setProfilePicture(auth.currentUser.photoURL)
   },[auth.currentUser.photoURL]);

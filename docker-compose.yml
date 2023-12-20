@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  my-server-service:
+    restart: on-failure
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+  
+  my-frontend-service:
+    restart: on-failure
+    build: ./client
+    ports:
+      - '5173:5173'
+    depends_on:
+      - my-server-service
