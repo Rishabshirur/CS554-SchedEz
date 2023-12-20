@@ -56,7 +56,7 @@ function App() {
   return (
     <AuthProvider>
       <div className='App'>
-        <header className='App-header card'>
+        <header className='App-header'>
           <Navigation />
         </header>
         <Routes>
