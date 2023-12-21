@@ -147,15 +147,9 @@ function Home() {
         Name: {currentUserState?.name}
         Email: {currentUserState?.email}
       </h2>
-      
-      
-    
-      <Link to="/all-events">View My All Events</Link>
+
+      <button onClick={openEventModal}>Add Event</button>
       <br/>
-      <Link to="/events-today">View Today's Events</Link>
-      <Link to="/invites">View invites</Link>
-      <br/>
-      <button onClick={openEventModal}>Open Event Form</button>
       {isEventModalOpen && (
         <div className="modal-overlay">
           <div className="modal">
@@ -166,6 +160,7 @@ function Home() {
           </div>
         </div>
       )}
+      <br/>
       <button onClick={openScheduleModal}>Add Schedule</button>
       {isScheduleModalOpen && (
         <div className="modal-overlay">

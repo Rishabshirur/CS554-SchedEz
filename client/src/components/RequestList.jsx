@@ -29,7 +29,7 @@ const RequestList = () => {
 
   const renderRequestList = (requests, isSentRequests) => {
     return (
-        <div>
+        <div style={styles.container}>
           {requests.map((request) => (
             <div key={request._id} style={styles.listItem}>
               <strong>Status:</strong> {request.status}
@@ -55,12 +55,20 @@ const RequestList = () => {
   };
 
   const styles = {
+    container: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+    },
+
     listItem: {
       marginBottom: '20px',
       padding: '15px',
       border: '1px solid #ddd',
       borderRadius: '8px',
       background: '#f9f9f9',
+      width: '80vw', 
+      boxSizing: 'border-box',
     },
   };
 

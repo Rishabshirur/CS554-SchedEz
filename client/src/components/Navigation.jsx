@@ -44,9 +44,17 @@ const NavigationAuth = () => {
           <NavLink to='/home' className='nav-link'>Home</NavLink>
         </li>
         <li>
+          <NavLink to="/all-events">View All My Events</NavLink>
+        </li>
+        <li>
+          <NavLink to="/events-today">View Today's Events</NavLink>
+        </li>
+        <li>
+          <NavLink to="/invites">View Event Invites</NavLink>
+        </li>
+        <li>
           <NavLink to='/account' className='nav-link'>Profile</NavLink>
         </li>
-
         <li>
           <SignOutButton />
         </li>

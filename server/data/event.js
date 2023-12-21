@@ -4,7 +4,6 @@ import { schedules } from "../config/mongoCollections.js";
 import { events } from "../config/mongoCollections.js";
 import {requestData} from './index.js'
 import validations from '../validation.js'
-import redis from 'redis';
 
 // const client = redis.createClient();
 

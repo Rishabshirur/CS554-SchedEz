@@ -17,7 +17,8 @@ function RequestModal({onUpdateCalendar}) {
           setEvent(response.data.requests)
     
       } catch (error) {
-        console.error('Error fetching requests:', error);
+        console.log('No pending event invites');
+        // console.error('Error fetching requests:', error);
       }
     };
     const runAsyncFunction = () => {
