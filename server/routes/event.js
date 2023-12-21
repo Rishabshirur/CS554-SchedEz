@@ -2,6 +2,7 @@ import {Router} from 'express';
 import {eventData} from '../data/index.js'
 import { ObjectId } from "mongodb";
 import validations from '../validation.js'
+import user from '../data/user.js';
 
 
 const router = Router();
@@ -163,6 +164,21 @@ router.post("/", async (req, res) => {
     } catch (error) {
       console.error('Error filtering events by color code:', error);
       res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  router.get("/:eventId/user-count", async (req, res) => {
+    let eventId = req.params.eventId;
+
+    try {
+      eventId = validations.checkId(eventId, "eventId");
+  
+      const userCount = await eventData.eventUserCount(eventId);
+  
+      return res.status(200).send({userCount})
+    } catch (e) {
+      const msg = e?.[1] || e?.message;
+      return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
     }
   });
 

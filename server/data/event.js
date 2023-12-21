@@ -120,6 +120,40 @@ const createEvent = async (userId, eventData) => {
     }
   };
   
+  const eventUserCount = async (id) => {
+
+    console.log(id)
+    if (!id || typeof id !== "string" || id.trim().length === 0) {
+      throw new Error("Invalid id");
+    }
+    id = id.trim();
+  
+    if (!ObjectId.isValid(id)) {
+      throw new Error("invalid object ID");
+    }
+  
+    try {
+      const eventsCollection = await events();
+      const myEvent = await eventsCollection.findOne({ _id: new ObjectId(id) });
+
+      const userCollection = await users();
+      const allusers = await userCollection.find().toArray();
+      let userCount = 1;
+      allusers.forEach((element) => {
+        console.log(element.events.attending)
+        if(element.events.attending){
+          if(element.events.attending.includes(id)){
+            userCount++;
+          }
+        }
+      });
+  
+  
+      return userCount;
+    } catch (error) {
+      throw new Error(error.message || "Error fetching event details by ID");
+    }
+  };
 
   const getEventsByUser = async (userId) => { 
     const eventsCollection = await events();
@@ -503,4 +537,4 @@ const createEvent = async (userId, eventData) => {
   
   
     export default {createEvent,getEventById,getEventsByUser,removeEvent,updateEvent,getEventsBySchedule,
-      checkEventAvailability,getEventsByDateRange,getEventsByColorCode,getEventsByStartDate,getEventsByEndDate,getEventsByClassification,getEventsByColorCodeperUser,getEventsByClassificationByUser}
+      checkEventAvailability,eventUserCount,getEventsByDateRange,getEventsByColorCode,getEventsByStartDate,getEventsByEndDate,getEventsByClassification,getEventsByColorCodeperUser,getEventsByClassificationByUser}

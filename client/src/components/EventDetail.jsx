@@ -13,7 +13,8 @@ const EventDetail = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [shareEventEmails, setShareEventEmails] = useState('');
   const [isSharing, setIsSharing] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);  const [userCount,setUserCount] = useState(1);
+
 
   const { eventId } = useParams();
   let auth = getAuth();
@@ -49,8 +50,18 @@ const EventDetail = () => {
     }
   };
 
+  const fetchEventUserCount = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/event/${eventId}/user-count`);
+      setUserCount(response.data.userCount);
+    } catch (error) {
+      console.error('Error fetching event user count:', error);
+    }
+  };
+
   useEffect(() => {
     fetchEventDetails();
+    fetchEventUserCount();
   }, [eventId]);
 
   const handleDelete = async () => {
@@ -135,7 +146,9 @@ const EventDetail = () => {
           <p>
             <strong>Classification:</strong> {eventDetail.classification}
           </p>
-
+          <p>
+            <strong>People attending:</strong> {userCount}
+          </p>
           <button onClick={handleEditClick}>Edit Event</button>
           <button onClick={handleDelete}>Delete Event</button>
           <button onClick={handleShareClick}>Share Event</button>
