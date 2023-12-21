@@ -81,6 +81,7 @@ async function updateUserProfile(displayName) {
 async function updateUserProfilePhoto(photoURL) {
   const auth = getAuth();
 
+  console.log("ddadas", auth.currentUser)
   try {
     // Update user profile
     await updateProfile(auth.currentUser, { photoURL});

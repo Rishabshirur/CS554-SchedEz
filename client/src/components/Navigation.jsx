@@ -14,10 +14,8 @@ const Navigation = () => {
 };
 
 const NavigationAuth = () => {
-  // const {currentUser} = useContext(AuthContext);
   const [profilePicture, setProfilePicture] = useState(null);
   let image = useSelector((state) => state.image.image)
-  // console.log(currentUser)
   let auth = getAuth();
   console.log("imagemagick in docker",auth.currentUser.photoURL);
   useEffect(() => {
@@ -25,6 +23,7 @@ const NavigationAuth = () => {
   },[auth.currentUser.photoURL]);
 
 
+  console.log("photooo",auth.currentUser.photoURL)
   return (
     <nav className='navigation'>
       {auth.currentUser && auth.currentUser.photoURL && (
@@ -37,16 +36,12 @@ const NavigationAuth = () => {
         </div>
         )}
       <ul>
-        {/* <li>
-          <NavLink to='/'>Landing</NavLink>
-        </li> */}
         <li>
           <NavLink to='/home' className='nav-link'>Home</NavLink>
         </li>
         <li>
           <NavLink to='/account' className='nav-link'>Profile</NavLink>
         </li>
-
         <li>
           <SignOutButton />
         </li>
@@ -75,38 +70,3 @@ const NavigationNonAuth = () => {
 };
 
 export default Navigation;
-
-
-// import { useContext } from 'react';
-// import { NavLink } from 'react-router-dom';
-// import { AuthContext } from '../context/AuthContext';
-// import SignOutButton from './SignOut';
-// import '../App.css';
-
-// const NavigationAuth = () => {
-//   const { currentUser } = useContext(AuthContext);
-
-//   return (
-//     <nav className='navigation'>
-//       <ul>
-//         <li>
-//           <NavLink to='/home'>Home</NavLink>
-//         </li>
-//         <li>
-//           <NavLink to='/account'>Profile</NavLink>
-//         </li>
-//         <li>
-//           <SignOutButton />
-//         </li>
-//         {/* Display the profile picture if available
-//         {currentUser.profilePicture && (
-//           <li className='profile-picture'>
-//             <img src={currentUser.profilePicture} alt="Profile" />
-//           </li>
-//         )} */}
-//       </ul>
-//     </nav>
-//   );
-// };
-
-// export default NavigationAuth;

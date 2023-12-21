@@ -1,4 +1,3 @@
-// import React from 'react';
 import {doSignOut} from '../firebase/FirebaseFunctions';
 import { useSelector, useDispatch } from 'react-redux';
 import actions from '../actions'

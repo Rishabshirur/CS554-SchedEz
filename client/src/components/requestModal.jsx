@@ -6,7 +6,6 @@ function RequestModal(props) {
   const [requests, setRequests] = useState(null);
   let [event, setEvent] = useState('')
   let auth = getAuth();
-    // Code to run after the delay
 
     const fetchData = async () => {
       try {
@@ -38,14 +37,12 @@ function RequestModal(props) {
 
   const handleAccept = async(req) => {
     try {
-      // Update the server to mark the request as accepted
       await axios.post(`http://localhost:3000/requests/accept`, {
         requestId: req._id,
         userId: auth.currentUser.uid,
         eventId: req.event._id,
       });
 
-      // Fetch the updated requests after accepting
       const response = await axios.get(`http://localhost:3000/requests/${auth.currentUser.email}`);
       setRequests(response.data.requests);
       console.log(`Accepted invitation`)
@@ -57,7 +54,6 @@ function RequestModal(props) {
 
   const handleReject = async(req) => {
     try {
-      // Update the server to mark the request as accepted
       await axios.post(`http://localhost:3000/requests/reject`, {
         requestId: req._id,
         userId: auth.currentUser.uid,

@@ -2,13 +2,6 @@ import { ObjectId } from "mongodb";
 import { users } from "../config/mongoCollections.js";
 import { schedules } from "../config/mongoCollections.js";
 import validations from '../validation.js'
-import redis from 'redis';
-
-const client = redis.createClient();
-
-(async () => {
-  await client.connect();
-})();
 
 const createSchedule = async (userId, scheduleName) => {
 
@@ -50,107 +43,63 @@ const createSchedule = async (userId, scheduleName) => {
     throw [404, "Could not create new schedule"];
 
     const insertedId = insert.insertedId.toString();
-
-     // Cache the newly created schedule in Redis
-    await client.set(`schedule:${insertedId}`, JSON.stringify(newSchedule));
-
     return { scheduleId: insertedId };
 }
 
 const getscheduleById = async (id) => {
-  if (!id || typeof id !== "string" || id.trim().length === 0) {
-    throw new Error("Invalid id");
-  }
-  id = id.trim();
-
-  if (!ObjectId.isValid(id)) {
-    throw new Error("invalid object ID");
-  }
-
-  try {
-    // Check if the schedule with the given ID exists in the Redis cache
-    const existSchedule = await client.exists(`schedule:${id}`);
-    if (existSchedule) {
-      const cachedSchedule = await client.get(`schedule:${id}`);
-      return JSON.parse(cachedSchedule);
+    if (!id || typeof id !== "string" || id.trim().length === 0) {
+      throw new Error("Invalid id");
     }
-
-    // Fetch schedule details from MongoDB if not found in the cache
+    id = id.trim();
+  
+    if (!ObjectId.isValid(id)) {
+      throw new Error("invalid object ID");
+    }
+  
     const scheduleCollection = await schedules();
     const schedule = await scheduleCollection.find({ userId: id }).toArray();
-
     if (schedule === null) {
       throw new Error("No schedule with that id");
     }
-
-    // Cache the schedule fetched from the database in Redis
-    await client.set(`schedule:${id}`, JSON.stringify(schedule));
-
     return schedule || [];
-  } catch (error) {
-    throw new Error(error.message || "Error fetching schedule details by ID");
-  }
-};
+  };
 
 const getScheduleByUser = async (userId) => {
-  let errors = [];
-  try {
-    userId = validations.checkId(userId, "userId");
-  } catch (e) {
-    errors.push(e?.message);
-  }
-
-  if (errors.length > 0) {
-    throw [400, errors];
-  }
-
-  try {
-    // Check if the schedule for the user exists in the Redis cache
-    const existSchedule = await client.exists(`userSchedule:${userId}`);
-    if (existSchedule) {
-      const cachedUserSchedule = await client.get(`userSchedule:${userId}`);
-      return JSON.parse(cachedUserSchedule);
+    let errors = [];
+    try {
+      userId = validations.checkId(userId, "userId");
+    } catch (e) {
+      errors.push(e?.message);
     }
-
-    // Fetch schedule details from MongoDB if not found in the cache
+  
+    if (errors.length > 0) {
+      throw [400, errors];
+    }
+  
     const scheduleCollection = await schedules();
     const schedule = await scheduleCollection.find({ userId: userId }).toArray();
-
+  
     if (schedule.length === 0) {
-      throw [404, "No schedules found for this user"];
+      throw [404,"No schedules found for this user"];
     }
-
-    // Cache the user's schedule fetched from the database in Redis
-    await client.set(`userSchedule:${userId}`, JSON.stringify(schedule));
-
     return schedule;
-  } catch (error) {
-    throw new Error(error.message || "Error fetching schedule details by user ID");
-  }
-};
+  };
 
-
-const removeSchedule = async (scheduleId) => {
-  try {
-    const scheduleCollection = await schedules();
-    const deletionInfo = await scheduleCollection.findOneAndDelete({
-      _id: new ObjectId(scheduleId),
-    });
-
-    if (deletionInfo.deletedCount === 0) {
-      throw `Could not delete schedule with id ${scheduleId}`;
+  const removeSchedule = async (scheduleId) => {
+    try {
+      const scheduleCollection = await schedules();
+      const deletionInfo = await scheduleCollection.findOneAndDelete({
+        _id: new ObjectId(scheduleId),
+      });
+      if (deletionInfo.deletedCount === 0) {
+        throw `Could not delete schedule with id ${scheduleId}`;
+      }
+      return true;
+    } catch (error) {
+      console.error(`Error occurred while deleting schedule: ${error}`);
+      return false;
     }
-
-    // Clear the corresponding schedule cache in Redis upon successful deletion
-    await client.del(`schedule:${scheduleId}`);
-
-    return true;
-  } catch (error) {
-    console.error(`Error occurred while deleting schedule: ${error}`);
-    return false;
-  }
-};
-
+  };
 
   const updateSchedule = async (scheduleId, updatedData) => {
     try {

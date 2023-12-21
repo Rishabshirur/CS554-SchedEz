@@ -33,14 +33,12 @@ function EventsToday() {
     return date.toLocaleDateString('en-US', options);
   };
 
-  // to check if event is active today
   const isEventActiveToday = (event) => {
     const today = new Date();
     const startDate = new Date(event.start_datetime);
     const endDate = new Date(event.end_datetime);
 
-    // to check if event is active only
-    // return today >= startDate && today <= endDate;
+
     return (
         (today.getFullYear() === startDate.getFullYear() &&
           today.getMonth() === startDate.getMonth() &&

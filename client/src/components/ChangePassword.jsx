@@ -47,8 +47,6 @@ function ChangePassword() {
     }
     try{
 
-        // await updateEmail(auth.currentUser, email)
-        // await updateProfile(auth.currentUser, {displayName: username})
         console.log(username.value)
         await updateUserProfile(username.value)
         
@@ -57,13 +55,7 @@ function ChangePassword() {
           obj,
         });
         console.log(currentUser)
-        setUserName(currentUser.displayName)
-        // console.log(file)
-    //     let { data } = await axios.post(`http://localhost:3000/user/${auth.currentUser.uid}/photo`, {file: file,userId: currentUser.uid}, {
-		// 	headers: {
-		// 		'Content-Type': `multipart/form-data;`
-		// 	}
-		// });
+        setUserName(currentUser.displayName);
       }
       catch(e){
         console.error(e);
@@ -75,42 +67,6 @@ useEffect(() => {},[userName])
       <div>
         {pwMatch && <h4 className='error'>{pwMatch}</h4>}
         <h2>Hi {userName}, You can view and update your Profile here</h2>
-        {/* <form onSubmit={submitChangeProfileForm}>
-          {/* <div className='form-group'>
-            <label>
-              User:
-              <input
-                className='form-control'
-                name='username'
-                id='username'
-                type='text'
-                defaultValue={currentUser.displayName}
-              />
-            </label>
-          </div> 
-          <div className='form-group'>
-          {/* <img
-					// src={
-					// 	userData.imageUrl
-					// 		? userData.imageUrl
-					// 		: 'https://via.placeholder.com/400.jpg?text=Profile+Image'
-					// }
-					alt="profile-picture"
-					className="profile-img"
-				/>
-				<input
-					type="file"
-					onChange={handleChange}
-					accept="image/jpeg, image/png, .jpeg, .jpg, .png"
-					className="image-input"
-				/> */}
-				{/* {loading ? <Spin /> : null} 
-
-                </div>
-          <button className='button' type='submit'>
-            Update
-          </button>
-        </form> */}
         <form onSubmit={submitChangePasswordForm}>
           <div className='form-group'>
             <label>

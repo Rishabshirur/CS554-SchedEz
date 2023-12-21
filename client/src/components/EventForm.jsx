@@ -50,7 +50,7 @@ function EventForm() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response1 = await axios.get(`http://localhost:3000/schedule/${auth.currentUser.uid}`); // Replace with your actual API endpoint
+        const response1 = await axios.get(`http://localhost:3000/schedule/${auth.currentUser.uid}`); 
         console.log("checkBox Options",response1)
         setCheckboxOptions(response1.data.schedules);
       } catch (error) {
