@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import { users } from "../config/mongoCollections.js";
 import { schedules } from "../config/mongoCollections.js";
 import { events } from "../config/mongoCollections.js";
-import {requestData} from './index.js'
+import requestData from './requests.js'
 import validations from '../validation.js'
 
 // const client = redis.createClient();
