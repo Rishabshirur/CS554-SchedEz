@@ -31,20 +31,49 @@ function EventList(filteredEvents) {
   };
 
   return (
-    <div>
-      <h2>Event List</h2>
-      <ul>
-      {filteredEvents.events.map((event) => (
-          <li key={event._id}>
-            <Link to={`/event/${event._id}`}>
+    <div style={styles.container}>
+      <h2 style={styles.heading}>Event List</h2>
+      <div style={styles.eventContainer}>
+        {filteredEvents.events.map((event) => (
+          <div key={event._id} style={styles.eventBox}>
+            <Link to={`/event/${event._id}`} style={styles.link}>
               <strong>{event.event_name}</strong> - {formatDate(event.start_datetime)}
             </Link>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
 
+const styles = {
+  container: {
+    margin: '20px',
+  },
+  heading: {
+    fontSize: '24px',
+    marginBottom: '10px',
+  },
+  eventContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  eventBox: {
+    marginBottom: '15px',
+    padding: '15px',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    width: '80vw',
+    boxSizing: 'border-box',
+    background: '#f9f9f9',
+  },
+  link: {
+    textDecoration: 'none',
+    color: '#007BFF',
+    fontWeight: 'bold',
+    fontSize: '16px',
+  },
+};
 
 export default EventList;

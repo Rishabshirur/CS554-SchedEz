@@ -4,6 +4,13 @@ import { schedules } from "../config/mongoCollections.js";
 import { events } from "../config/mongoCollections.js";
 import {requestData} from './index.js'
 import validations from '../validation.js'
+
+// const client = redis.createClient();
+
+// (async () => {
+//   await client.connect();
+// })();
+
 const createEvent = async (userId, eventData) => {
 // const createEvent = async (userId, scheduleId, eventData) => {
     let errors = [];
@@ -99,10 +106,15 @@ const createEvent = async (userId, eventData) => {
     }
   
     const insertedId = insert.insertedId.toString();
+
+    // Cache the newly created event in Redis
+    // await client.set(`event:${insertedId}`, JSON.stringify(newEvent));
+
     return { eventId: insertedId };
   };
 
   const getEventById = async (id) => {
+    console.log(id)
     if (!id || typeof id !== "string" || id.trim().length === 0) {
       throw new Error("Invalid id");
     }
@@ -112,12 +124,29 @@ const createEvent = async (userId, eventData) => {
       throw new Error("invalid object ID");
     }
   
-    const eventsCollection = await events();
-    const eventDetail = await eventsCollection.find({ _id: new ObjectId(id) }).toArray();
-    if (eventDetail === null) {
-      throw new Error("No schedule with that id");
+    try {
+      // // Check if the event with the given ID exists in the Redis cache
+      // const existEvent = await client.exists(`event:${id}`);
+      // if (existEvent) {
+      //   const cachedEvent = await client.get(`event:${id}`);
+      //   return JSON.parse(cachedEvent);
+      // }
+  
+      // Fetch event details from MongoDB if not found in the cache
+      const eventsCollection = await events();
+      const eventDetail = await eventsCollection.find({ _id: new ObjectId(id) }).toArray();
+  
+      if (eventDetail.length === 0) {
+        throw new Error("No schedule with that id");
+      }
+  
+      // Cache the event fetched from the database in Redis
+      // await client.set(`event:${id}`, JSON.stringify(eventDetail));
+  
+      return eventDetail || [];
+    } catch (error) {
+      throw new Error(error.message || "Error fetching event details by ID");
     }
-    return eventDetail || [];
   };
   
 
@@ -160,15 +189,21 @@ const createEvent = async (userId, eventData) => {
       const deletionInfo = await eventsCollection.findOneAndDelete({
         _id: new ObjectId(eventId),
       });
+  
       if (deletionInfo.deletedCount === 0) {
         throw `Could not delete event with id ${eventId}`;
       }
+  
+      // Clear the corresponding event cache in Redis upon successful deletion
+      // await client.del(`event:${eventId}`);
+  
       return true;
     } catch (error) {
       console.error(`Error occurred while deleting event: ${error}`);
       return false;
     }
   };
+  
 
   const updateEvent = async (eventId, updatedData) => {
     try {
@@ -221,14 +256,29 @@ const createEvent = async (userId, eventData) => {
       throw [400, errors];
     }
   
-    const eventsCollection = await events();
-    const events = await eventsCollection.find({ scheduleId: new ObjectId(scheduleId) }).toArray();
+    try {
+      // Check if events for the schedule exist in the Redis cache
+      // const existEvents = await client.exists(`schedule:${scheduleId}`);
+      // if (existEvents) {
+      //   const cachedEvents = await client.get(`schedule:${scheduleId}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
-    if (events.length === 0) {
-      throw [404, "No events found for this schedule"];
+      // Fetch events from MongoDB if not found in the cache
+      const eventsCollection = await events();
+      const events = await eventsCollection.find({ scheduleId: new ObjectId(scheduleId) }).toArray();
+  
+      if (events.length === 0) {
+        throw [404, "No events found for this schedule"];
+      }
+  
+      // Cache the events fetched from the database in Redis
+      // await client.set(`schedule:${scheduleId}`, JSON.stringify(events));
+  
+      return events;
+    } catch (error) {
+      throw new Error(error.message || "Error fetching events by schedule");
     }
-  
-    return events;
   };
   
   const checkEventAvailability = async (scheduleId, startDateTime, endDateTime) => {
@@ -236,13 +286,11 @@ const createEvent = async (userId, eventData) => {
   
     try {
       scheduleId = validations.checkId(scheduleId, "scheduleId");
-     
-      //do validation for startDateTime and endDateTime
   
-  
-    
+      // Perform validation for startDateTime and endDateTime
       const startTime = new Date(startDateTime);
       const endTime = new Date(endDateTime);
+  
       if (startTime >= endTime) {
         throw new Error("Start Date and Time must be before End Date and Time.");
       }
@@ -254,20 +302,37 @@ const createEvent = async (userId, eventData) => {
       throw [400, errors];
     }
   
-    const eventsCollection = await events();
-    const overlappingEvents = await eventsCollection.find({
-      scheduleId: new ObjectId(scheduleId),
-      $or: [
-        {
-          start_datetime: { $lt: new Date(endDateTime) },
-          end_datetime: { $gt: new Date(startDateTime) }
-        }
-      ]
-    }).toArray();
+    const cacheKey = `eventAvailability:${scheduleId}:${startDateTime}:${endDateTime}`;
   
-    const isAvailable = overlappingEvents.length === 0;
-
-  return isAvailable;
+    try {
+      // Check if event availability is cached in Redis
+      // const isCached = await client.exists(cacheKey);
+      // if (isCached) {
+      //   const cachedAvailability = await client.get(cacheKey);
+      //   return JSON.parse(cachedAvailability);
+      // }
+  
+      // Fetch event availability from MongoDB if not found in the cache
+      const eventsCollection = await events();
+      const overlappingEvents = await eventsCollection.find({
+        scheduleId: new ObjectId(scheduleId),
+        $or: [
+          {
+            start_datetime: { $lt: new Date(endDateTime) },
+            end_datetime: { $gt: new Date(startDateTime) }
+          }
+        ]
+      }).toArray();
+  
+      const isAvailable = overlappingEvents.length === 0;
+  
+      // Cache the event availability in Redis
+      // await client.set(cacheKey, JSON.stringify(isAvailable));
+  
+      return isAvailable;
+    } catch (error) {
+      throw new Error(error.message || "Error checking event availability");
+    }
   };
   
   const getEventsByDateRange = async (scheduleId, startDate, endDate) => {
@@ -275,11 +340,10 @@ const createEvent = async (userId, eventData) => {
   
     try {
       scheduleId = validations.checkId(scheduleId, "scheduleId");
-      //do validation for startDateTime and endDateTime
-
-      
+      // Perform validation for startDate and endDate
       const startDateTime = new Date(startDate);
       const endDateTime = new Date(endDate);
+  
       if (startDateTime >= endDateTime) {
         throw new Error("Start Date must be before End Date.");
       }
@@ -291,84 +355,184 @@ const createEvent = async (userId, eventData) => {
       throw [400, errors];
     }
   
-    const eventsCollection = await events();
-    const eventsWithinDateRange = await eventsCollection.find({
-      scheduleId: new ObjectId(scheduleId),
-      start_datetime: { $gte: new Date(startDate), $lte: new Date(endDate) }
-    }).toArray();
+    try {
+      // Check if events within the date range are cached in Redis
+      // const isCached = await client.exists(`eventsDateRange:${scheduleId}:${startDate}:${endDate}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsDateRange:${scheduleId}:${startDate}:${endDate}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
-    return eventsWithinDateRange;
+      // Fetch events within the date range from MongoDB if not found in the cache
+      const eventsCollection = await events();
+      const eventsWithinDateRange = await eventsCollection.find({
+        scheduleId: new ObjectId(scheduleId),
+        start_datetime: { $gte: new Date(startDate), $lte: new Date(endDate) }
+      }).toArray();
+  
+      // Cache the events within the date range in Redis
+      // await client.set(`eventsDateRange:${scheduleId}:${startDate}:${endDate}`, JSON.stringify(eventsWithinDateRange));
+  
+      return eventsWithinDateRange;
+    } catch (error) {
+      throw new Error(error.message || "Error fetching events by date range");
+    }
   };
 
   const getEventsByColorCode = async (colorCode) => {
-
     const eventsCollection = await events();
   
-    const eventsByColorCode = await eventsCollection.find({
-      color_code: colorCode,
-    }).toArray();
+    try {
+      // Check if events by color code are cached in Redis
+      // const isCached = await client.exists(`eventsByColorCode:${colorCode}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByColorCode:${colorCode}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
-    return eventsByColorCode;
+      // Fetch events by color code from MongoDB if not found in the cache
+      const eventsByColorCode = await eventsCollection.find({
+        color_code: colorCode,
+      }).toArray();
+  
+      // Cache the events by color code in Redis
+      // await client.set(`eventsByColorCode:${colorCode}`, JSON.stringify(eventsByColorCode));
+  
+      return eventsByColorCode;
+    } catch (error) {
+      throw new Error(error.message || "Error fetching events by color code");
+    }
   };
 
-  const getEventsByColorCodeperUser = async (userId, colorCode) => {
+
+   const getEventsByColorCodeperUser = async (userId, colorCode) => {
     const eventsCollection = await events();
   
-    const eventsByColorCode = await eventsCollection.find({
-      userId: userId,
-      color_code: colorCode,
-    }).toArray();
+    try {
+      // Check if events by color code per user are cached in Redis
+      // const isCached = await client.exists(`eventsByColorCodePerUser:${userId}:${colorCode}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByColorCodePerUser:${userId}:${colorCode}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
-    return eventsByColorCode;
+      // Fetch events by color code per user from MongoDB if not found in the cache
+      const eventsByColorCode = await eventsCollection.find({
+        userId: userId,
+        color_code: colorCode,
+      }).toArray();
+  
+      // Cache the events by color code per user in Redis
+      // await client.set(`eventsByColorCodePerUser:${userId}:${colorCode}`, JSON.stringify(eventsByColorCode));
+  
+      return eventsByColorCode;
+    } catch (error) {
+      throw new Error(error.message || "Error fetching events by color code per user");
+    }
   };
   
-     const getEventsByStartDate = async (startDate) => {
-  
-      const eventsCollection = await events();
-  
-      const eventsByStartDate= await eventsCollection.find({
-      start_datetime: { $gte: new Date(startDate) },
-    }).toArray();
-  
-    return eventsByStartDate;
-  };
-  
-  
-   const getEventsByEndDate = async (endDate) => {
-    console.log('Start Date:', startDate);
-  
+  const getEventsByStartDate = async (startDate) => {
     const eventsCollection = await events();
   
-    const eventByEndDate = await eventsCollection.find({
-      end_datetime: { $lte: new Date(endDate) },
-    }).toArray();
+    try {
+      // Check if events by start date are cached in Redis
+      // const isCached = await client.exists(`eventsByStartDate:${startDate}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByStartDate:${startDate}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
-    return eventByEndDate;
+      // Fetch events by start date from MongoDB if not found in the cache
+      const eventsByStartDate = await eventsCollection.find({
+        start_datetime: { $gte: new Date(startDate) },
+      }).toArray();
+  
+      // Cache the events by start date in Redis
+      // await client.set(`eventsByStartDate:${startDate}`, JSON.stringify(eventsByStartDate));
+  
+      return eventsByStartDate;
+    } catch (error) {
+      throw new Error(error.message || "Error fetching events by start date");
+    }
+  };
+  
+  
+  const getEventsByEndDate = async (endDate) => {
+    const eventsCollection = await events();
+  
+    try {
+      // Check if events by end date are cached in Redis
+      // const isCached = await client.exists(`eventsByEndDate:${endDate}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByEndDate:${endDate}`);
+      //   return JSON.parse(cachedEvents);
+      // }
+  
+      // Fetch events by end date from MongoDB if not found in the cache
+      const eventByEndDate = await eventsCollection.find({
+        end_datetime: { $lte: new Date(endDate) },
+      }).toArray();
+  
+      // Cache the events by end date in Redis
+      // await client.set(`eventsByEndDate:${endDate}`, JSON.stringify(eventByEndDate));
+  
+      return eventByEndDate;
+    } catch (error) {
+      throw new Error(error.message || "Error fetching events by end date");
+    }
   };
   
   
   
-   const getEventsByClassification = async (classification) => {
-  
+  const getEventsByClassification = async (classification) => {
     const eventsCollection = await events();
   
-    const eventByClassification = await eventsCollection.find({
-      classification,
-    }).toArray();
+    try {
+      // Check if events by classification are cached in Redis
+      // const isCached = await client.exists(`eventsByClassification:${classification}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByClassification:${classification}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
-    return eventByClassification;
+      // Fetch events by classification from MongoDB if not found in the cache
+      const eventByClassification = await eventsCollection.find({
+        classification,
+      }).toArray();
+  
+      // Cache the events by classification in Redis
+      // await client.set(`eventsByClassification:${classification}`, JSON.stringify(eventByClassification));
+  
+      return eventByClassification;
+    } catch (error) {
+      throw new Error(error.message || "Error fetching events by classification");
+    }
   };
 
-  const getEventsByClassificationByUser = async (userId,classification) => {
-
+  const getEventsByClassificationByUser = async (userId, classification) => {
     const eventsCollection = await events();
   
-    const eventByClassification = await eventsCollection.find({
-      userId : userId,
-      classification : classification,
-    }).toArray();
+    try {
+      // Check if events by classification per user are cached in Redis
+      // const isCached = await client.exists(`eventsByClassificationByUser:${userId}:${classification}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByClassificationByUser:${userId}:${classification}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
-    return eventByClassification;
+      // Fetch events by classification per user from MongoDB if not found in the cache
+      const eventByClassification = await eventsCollection.find({
+        userId: userId,
+        classification: classification,
+      }).toArray();
+  
+      // Cache the events by classification per user in Redis
+      // await client.set(`eventsByClassificationByUser:${userId}:${classification}`, JSON.stringify(eventByClassification));
+  
+      return eventByClassification;
+    } catch (error) {
+      throw new Error(error.message || "Error fetching events by classification per user");
+    }
   };
   
   

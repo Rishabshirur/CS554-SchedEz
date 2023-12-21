@@ -99,9 +99,6 @@ const getRequestsByEmail = async (receiver_email) => {
     const requestList = await requestCollection.find({ receiver_email: receiver_email, status: "pending" })
     .sort({ "event.created_at": -1 }).toArray();
   
-    if (requestList.length === 0) {
-      throw [404,"No requests found for this user"];
-    }
     return requestList;
   };
 

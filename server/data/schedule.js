@@ -82,24 +82,32 @@ const getScheduleByUser = async (userId) => {
     if (schedule.length === 0) {
       throw [404,"No schedules found for this user"];
     }
-    return schedule;
-  };
 
-  const removeSchedule = async (scheduleId) => {
-    try {
-      const scheduleCollection = await schedules();
-      const deletionInfo = await scheduleCollection.findOneAndDelete({
-        _id: new ObjectId(scheduleId),
-      });
-      if (deletionInfo.deletedCount === 0) {
-        throw `Could not delete schedule with id ${scheduleId}`;
-      }
-      return true;
-    } catch (error) {
-      console.error(`Error occurred while deleting schedule: ${error}`);
-      return false;
+    return schedule;
+  } 
+
+
+const removeSchedule = async (scheduleId) => {
+  try {
+    const scheduleCollection = await schedules();
+    const deletionInfo = await scheduleCollection.findOneAndDelete({
+      _id: new ObjectId(scheduleId),
+    });
+
+    if (deletionInfo.deletedCount === 0) {
+      throw `Could not delete schedule with id ${scheduleId}`;
     }
-  };
+
+    // Clear the corresponding schedule cache in Redis upon successful deletion
+    await client.del(`schedule:${scheduleId}`);
+
+    return true;
+  } catch (error) {
+    console.error(`Error occurred while deleting schedule: ${error}`);
+    return false;
+  }
+};
+
 
   const updateSchedule = async (scheduleId, updatedData) => {
     try {

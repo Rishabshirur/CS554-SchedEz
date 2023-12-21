@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getAuth } from 'firebase/auth';
 
-function RequestModal(props) {
+function RequestModal({onUpdateCalendar}) {
   const [requests, setRequests] = useState(null);
   let [event, setEvent] = useState('')
   let auth = getAuth();
@@ -16,7 +16,8 @@ function RequestModal(props) {
           setEvent(response.data.requests)
     
       } catch (error) {
-        console.error('Error fetching requests:', error);
+        console.log('No pending event invites');
+        // console.error('Error fetching requests:', error);
       }
     };
     const runAsyncFunction = () => {
@@ -28,9 +29,9 @@ function RequestModal(props) {
 
     runAsyncFunction();
 
-    const intervalId = setInterval(runAsyncFunction, 5000);
+    // const intervalId = setInterval(runAsyncFunction, 5000);
     return () => {
-      clearInterval(intervalId);
+      // clearInterval(intervalId);
     };
 
   }, []);
@@ -42,12 +43,14 @@ function RequestModal(props) {
         userId: auth.currentUser.uid,
         eventId: req.event._id,
       });
-
+      console.log("handled accept")
+      onUpdateCalendar()
       const response = await axios.get(`http://localhost:3000/requests/${auth.currentUser.email}`);
       setRequests(response.data.requests);
       console.log(`Accepted invitation`)
     } catch (error) {
       console.error('Error accepting invite:', error);
+      setRequests([])
     }
    
   };
@@ -60,12 +63,14 @@ function RequestModal(props) {
         eventId: req.event._id,
       });
 
+      console.log("handeled reject")
       const response = await axios.get(`http://localhost:3000/requests/${auth.currentUser.email}`);
       setRequests(response.data.requests);
       console.log(`Accepted invitation`)
       console.log(`Invite request rejected `);
     } catch (error) {
       console.error('Error accepting invitation:', error);
+      setRequests([])
     }
   };
 

@@ -142,20 +142,11 @@ function Home() {
   return (
     <div className='card'>
       <h2>
-        Hello {currentUser && currentUser.displayName}, this is the Protected
-        Home page
-        Name: {currentUserState?.name}
-        Email: {currentUserState?.email}
+        Hello {currentUser && currentUser.displayName}, Welcome to SchedEz
       </h2>
-      
-      
-    
-      <Link to="/all-events">View My All Events</Link>
+
+      <button onClick={openEventModal}>Add Event</button>
       <br/>
-      <Link to="/events-today">View Today's Events</Link>
-      <Link to="/invites">View invites</Link>
-      <br/>
-      <button onClick={openEventModal}>Open Event Form</button>
       {isEventModalOpen && (
         <div className="modal-overlay">
           <div className="modal">
@@ -166,6 +157,7 @@ function Home() {
           </div>
         </div>
       )}
+      <br/>
       <button onClick={openScheduleModal}>Add Schedule</button>
       {isScheduleModalOpen && (
         <div className="modal-overlay">
@@ -177,7 +169,7 @@ function Home() {
           </div>
         </div>
       )}
-      <RequestModal/>
+      <RequestModal onUpdateCalendar={handleUpdateCalendar}/>
       <EventCalendar shouldUpdateCalendar={shouldUpdateCalendar}/>
     </div>
   );
