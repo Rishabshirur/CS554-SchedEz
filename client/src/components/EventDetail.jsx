@@ -11,7 +11,9 @@ const EventDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
+  const [shareEventEmails, setShareEventEmails] = useState('');
+  const [isSharing, setIsSharing] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const { eventId } = useParams();
   let auth = getAuth();
@@ -26,16 +28,15 @@ const EventDetail = () => {
   const formatDateForInput = (dateTimeString) => {
     const date = new Date(dateTimeString);
     const pad = (num) => (num < 10 ? `0${num}` : num);
-  
+
     const year = date.getFullYear();
     const month = pad(date.getMonth() + 1);
     const day = pad(date.getDate());
     const hours = pad(date.getHours());
     const minutes = pad(date.getMinutes());
-  
+
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
-  
 
   const fetchEventDetails = async () => {
     try {
@@ -64,10 +65,10 @@ const EventDetail = () => {
   const handleEdit = async (e) => {
     e.preventDefault();
 
-     if (new Date(editedEvent.end_datetime) < new Date(editedEvent.start_datetime)) {
-    setErrorMessage('End date cannot be before start date');
-    return; 
-  }
+    if (new Date(editedEvent.end_datetime) < new Date(editedEvent.start_datetime)) {
+      setErrorMessage('End date cannot be before start date');
+      return;
+    }
     try {
       await axios.patch(`http://localhost:3000/event/${eventId}`, editedEvent);
       fetchEventDetails();
@@ -80,28 +81,41 @@ const EventDetail = () => {
   };
 
   const handleCloseModal = () => {
-    setShowModal(false);
+    console.log('Closing modal...');
     setEventDetail(initialEventDetail);
     setIsEditing(false);
     setErrorMessage('');
+    setShowModal(false);
+    setShowShareModal(false);
   };
 
   const handleEditClick = () => {
     const { start_datetime, end_datetime, ...otherDetails } = eventDetail;
     const formattedStartDate = start_datetime ? formatDateForInput(start_datetime) : '';
     const formattedEndDate = end_datetime ? formatDateForInput(end_datetime) : '';
-  
+
     setEditedEvent({
       ...otherDetails,
       start_datetime: formattedStartDate,
       end_datetime: formattedEndDate,
     });
-  
+
     setIsEditing(true);
     setShowModal(true);
   };
-  
-  
+
+  const handleShareClick = () => {
+    setIsSharing((prevIsSharing) => !prevIsSharing);
+    setShowShareModal((prevShowShareModal) => !prevShowShareModal);
+  };
+
+  const handleShareEvent = async () => {
+    // Add logic to send emails to the backend or any other desired action
+    console.log('Sharing event with emails:', shareEventEmails);
+    setShareEventEmails('');
+    setIsSharing((prevIsSharing) => !prevIsSharing);
+    setShowShareModal((prevShowShareModal) => !prevShowShareModal); 
+  };
 
   return (
     <div>
@@ -121,9 +135,23 @@ const EventDetail = () => {
           <p>
             <strong>Classification:</strong> {eventDetail.classification}
           </p>
-          
+
           <button onClick={handleEditClick}>Edit Event</button>
           <button onClick={handleDelete}>Delete Event</button>
+          <button onClick={handleShareClick}>Share Event</button>
+          {isSharing && (
+            <div>
+              <label>
+                Emails (comma-separated):
+                <input
+                  type="text"
+                  value={shareEventEmails}
+                  onChange={(e) => setShareEventEmails(e.target.value)}
+                />
+              </label>
+              <button onClick={handleShareEvent}>Share</button>
+            </div>
+          )}
         </div>
       ) : (
         showModal && (
@@ -176,9 +204,10 @@ const EventDetail = () => {
           </div>
         )
       )}
+
+      
     </div>
   );
 };
 
 export default EventDetail;
-

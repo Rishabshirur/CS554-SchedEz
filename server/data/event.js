@@ -35,9 +35,7 @@ const createEvent = async (userId, eventData) => {
     }
   
     console.log("in data events")
-    // if (!user) {
-    //   throw [404, "User not found with this userId"];
-    // }
+    
   
     const eventsCollection = await events();
     const newEvent = {
@@ -53,63 +51,48 @@ const createEvent = async (userId, eventData) => {
       updated_at: new Date(),
     };
 
-    let receiver_emailId;
-    let receiver;
+
   
     const userCollection = await users();
+    let user = await userCollection.findOne(
+      { uid: userId}
+    );
+    if (!user) {
+      throw [404, "User not found with this userId"];
+    }
 
-    if(eventData.shareEvent){
-      receiver_emailId = eventData.shareEvent
-      receiver = await userCollection.findOne(
-        { email: receiver_emailId}
-      );
-      if(!receiver){
-        throw [404, 'No user exists with emailId provided'];
-      }
+    let receivers;
+    if (eventData.shareEvent) {
+      receivers = eventData.shareEvent.split(',').map(email => email.trim());
+      console.log(receivers);
+      for (let receiver_emailId of receivers) {
+          let receiver = await userCollection.findOne({ email: receiver_emailId });
+          if (!receiver) {
+              throw [404, `No user exists with emailId: ${receiver_emailId}`];
+          }
+      }  
     }
     const insert = await eventsCollection.insertOne(newEvent);
     if (!insert.acknowledged || !insert.insertedId) {
       throw [404, "Could not create new event"];
     }
 
-    // let obj={};
-    
-    let user = await userCollection.findOne(
-      { uid: userId}
-    );
-    // if(eventData.shareEvent){
-    //   obj.sender_email = user.email;
-    //   obj.event = newEvent;
-    //   receiver.requests.push(obj);
-    // }
-
-    // const receiverUpdateInfo = await userCollection.findOneAndUpdate({ email: receiver_emailId}, {
-    //   $set: receiver
-    // }, {returnDocument: 'after'});
-    // if (receiverUpdateInfo.lastErrorObject.n === 0) {
-    //   throw  'Failed to add people to the event';
-    // }
-    // 
-
-    if(eventData.shareEvent){
-      const receiverInsertInfo = await requestData.createRequest(user.email, receiver_emailId, newEvent);
-      if ( !receiverInsertInfo.requestId)
-        throw [404, "Could not add new request"];
+    if (eventData.shareEvent) {
+      for (let receiver_emailId of receivers) {
+          let receiverInsertInfo = await requestData.createRequest(user.email, receiver_emailId, newEvent);
+          if (!receiverInsertInfo.requestId) {
+              throw [404, "Could not add new request"];
+          }
+      }
     }
-    // console.log(user)
-    user.events.organizing.push(insert.insertedId.toString())
+    user.events.organizing.push(insert.insertedId.toString())  
     const updatedInfo = await userCollection.findOneAndUpdate({ uid: userId }, {
       $set: user
     }, {returnDocument: 'after'});
     if (updatedInfo.lastErrorObject.n === 0) {
       throw  'Failed to update the user collection';
     }
-  
     const insertedId = insert.insertedId.toString();
-
-    // Cache the newly created event in Redis
-    // await client.set(`event:${insertedId}`, JSON.stringify(newEvent));
-
     return { eventId: insertedId };
   };
 
@@ -125,24 +108,12 @@ const createEvent = async (userId, eventData) => {
     }
   
     try {
-      // // Check if the event with the given ID exists in the Redis cache
-      // const existEvent = await client.exists(`event:${id}`);
-      // if (existEvent) {
-      //   const cachedEvent = await client.get(`event:${id}`);
-      //   return JSON.parse(cachedEvent);
-      // }
-  
-      // Fetch event details from MongoDB if not found in the cache
       const eventsCollection = await events();
       const eventDetail = await eventsCollection.find({ _id: new ObjectId(id) }).toArray();
   
       if (eventDetail.length === 0) {
         throw new Error("No schedule with that id");
       }
-  
-      // Cache the event fetched from the database in Redis
-      // await client.set(`event:${id}`, JSON.stringify(eventDetail));
-  
       return eventDetail || [];
     } catch (error) {
       throw new Error(error.message || "Error fetching event details by ID");
@@ -152,12 +123,6 @@ const createEvent = async (userId, eventData) => {
 
   const getEventsByUser = async (userId) => { 
     const eventsCollection = await events();
-    // const eventsList = await eventsCollection.find({ userId: userId }).toArray();
-    // console.log(eventsList)
-  
-    // if (eventsList.length === 0) {
-    //   throw [404,"No events found for this user"];
-    // }
     const usersCollection = await users();
     const user = await usersCollection.findOne({ uid: userId });
 
