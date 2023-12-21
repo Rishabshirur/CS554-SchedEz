@@ -4,11 +4,11 @@ import { schedules } from "../config/mongoCollections.js";
 import validations from '../validation.js'
 import redis from 'redis';
 
-const client = redis.createClient();
+// const client = redis.createClient();
 
-(async () => {
-  await client.connect();
-})();
+// (async () => {
+//   await client.connect();
+// })();
 
 const createSchedule = async (userId, scheduleName) => {
 
@@ -52,7 +52,7 @@ const createSchedule = async (userId, scheduleName) => {
     const insertedId = insert.insertedId.toString();
 
      // Cache the newly created schedule in Redis
-    await client.set(`schedule:${insertedId}`, JSON.stringify(newSchedule));
+    // await client.set(`schedule:${insertedId}`, JSON.stringify(newSchedule));
 
     return { scheduleId: insertedId };
 }
@@ -69,11 +69,11 @@ const getscheduleById = async (id) => {
 
   try {
     // Check if the schedule with the given ID exists in the Redis cache
-    const existSchedule = await client.exists(`schedule:${id}`);
-    if (existSchedule) {
-      const cachedSchedule = await client.get(`schedule:${id}`);
-      return JSON.parse(cachedSchedule);
-    }
+    // const existSchedule = await client.exists(`schedule:${id}`);
+    // if (existSchedule) {
+    //   const cachedSchedule = await client.get(`schedule:${id}`);
+    //   return JSON.parse(cachedSchedule);
+    // }
 
     // Fetch schedule details from MongoDB if not found in the cache
     const scheduleCollection = await schedules();
@@ -84,7 +84,7 @@ const getscheduleById = async (id) => {
     }
 
     // Cache the schedule fetched from the database in Redis
-    await client.set(`schedule:${id}`, JSON.stringify(schedule));
+    // await client.set(`schedule:${id}`, JSON.stringify(schedule));
 
     return schedule || [];
   } catch (error) {
@@ -106,11 +106,11 @@ const getScheduleByUser = async (userId) => {
 
   try {
     // Check if the schedule for the user exists in the Redis cache
-    const existSchedule = await client.exists(`userSchedule:${userId}`);
-    if (existSchedule) {
-      const cachedUserSchedule = await client.get(`userSchedule:${userId}`);
-      return JSON.parse(cachedUserSchedule);
-    }
+    // const existSchedule = await client.exists(`userSchedule:${userId}`);
+    // if (existSchedule) {
+    //   const cachedUserSchedule = await client.get(`userSchedule:${userId}`);
+    //   return JSON.parse(cachedUserSchedule);
+    // }
 
     // Fetch schedule details from MongoDB if not found in the cache
     const scheduleCollection = await schedules();
@@ -121,7 +121,7 @@ const getScheduleByUser = async (userId) => {
     }
 
     // Cache the user's schedule fetched from the database in Redis
-    await client.set(`userSchedule:${userId}`, JSON.stringify(schedule));
+    // await client.set(`userSchedule:${userId}`, JSON.stringify(schedule));
 
     return schedule;
   } catch (error) {
@@ -142,7 +142,7 @@ const removeSchedule = async (scheduleId) => {
     }
 
     // Clear the corresponding schedule cache in Redis upon successful deletion
-    await client.del(`schedule:${scheduleId}`);
+    // await client.del(`schedule:${scheduleId}`);
 
     return true;
   } catch (error) {

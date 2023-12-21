@@ -177,7 +177,7 @@ function Home() {
           </div>
         </div>
       )}
-      <RequestModal/>
+      <RequestModal onUpdateCalendar={handleUpdateCalendar}/>
       <EventCalendar shouldUpdateCalendar={shouldUpdateCalendar}/>
     </div>
   );

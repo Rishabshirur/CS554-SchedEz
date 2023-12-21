@@ -163,6 +163,7 @@ const EventCalendar = ({ shouldUpdateCalendar }) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/event/${auth.currentUser.uid}`);
+        console.log(response.data.events)
         setEvents(response.data.events);
 
         const response1 = await axios.get(`http://localhost:3000/schedule/${auth.currentUser.uid}`);

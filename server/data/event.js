@@ -6,11 +6,11 @@ import {requestData} from './index.js'
 import validations from '../validation.js'
 import redis from 'redis';
 
-const client = redis.createClient();
+// const client = redis.createClient();
 
-(async () => {
-  await client.connect();
-})();
+// (async () => {
+//   await client.connect();
+// })();
 
 const createEvent = async (userId, eventData) => {
 // const createEvent = async (userId, scheduleId, eventData) => {
@@ -109,7 +109,7 @@ const createEvent = async (userId, eventData) => {
     const insertedId = insert.insertedId.toString();
 
     // Cache the newly created event in Redis
-    await client.set(`event:${insertedId}`, JSON.stringify(newEvent));
+    // await client.set(`event:${insertedId}`, JSON.stringify(newEvent));
 
     return { eventId: insertedId };
   };
@@ -126,12 +126,12 @@ const createEvent = async (userId, eventData) => {
     }
   
     try {
-      // Check if the event with the given ID exists in the Redis cache
-      const existEvent = await client.exists(`event:${id}`);
-      if (existEvent) {
-        const cachedEvent = await client.get(`event:${id}`);
-        return JSON.parse(cachedEvent);
-      }
+      // // Check if the event with the given ID exists in the Redis cache
+      // const existEvent = await client.exists(`event:${id}`);
+      // if (existEvent) {
+      //   const cachedEvent = await client.get(`event:${id}`);
+      //   return JSON.parse(cachedEvent);
+      // }
   
       // Fetch event details from MongoDB if not found in the cache
       const eventsCollection = await events();
@@ -142,7 +142,7 @@ const createEvent = async (userId, eventData) => {
       }
   
       // Cache the event fetched from the database in Redis
-      await client.set(`event:${id}`, JSON.stringify(eventDetail));
+      // await client.set(`event:${id}`, JSON.stringify(eventDetail));
   
       return eventDetail || [];
     } catch (error) {
@@ -151,29 +151,37 @@ const createEvent = async (userId, eventData) => {
   };
   
 
-  const getEventsByUser = async (userId) => {
-    try {
-      const existEvents = await client.exists(`user:${userId}`);
-      if (existEvents) {
-        const cachedEvents = await client.get(`user:${userId}`);
-        return JSON.parse(cachedEvents);
-      }
+  const getEventsByUser = async (userId) => { 
+    const eventsCollection = await events();
+    // const eventsList = await eventsCollection.find({ userId: userId }).toArray();
+    // console.log(eventsList)
   
-      // Fetch events from MongoDB if not found in the cache
-      const eventsCollection = await events();
-      const eventsList = await eventsCollection.find({ userId: userId }).toArray();
-  
-      if (eventsList.length === 0) {
-        throw [404, "No events found for this user"];
-      }
-  
-      // Cache the events fetched from the database in Redis
-      await client.set(`user:${userId}`, JSON.stringify(eventsList));
-  
-      return eventsList;
-    } catch (error) {
-      throw new Error(error.message || "Error fetching events by user");
+    // if (eventsList.length === 0) {
+    //   throw [404,"No events found for this user"];
+    // }
+    const usersCollection = await users();
+    const user = await usersCollection.findOne({ uid: userId });
+
+    if (!user) {
+      throw [404, "User not found"];
     }
+
+    const { attending, organizing } = user.events;
+    const allEventIds = [...attending, ...organizing];
+
+    if (allEventIds.length === 0) {
+      throw [404, "No events found for this user"];
+    }
+
+
+    const eventsList = await eventsCollection.find({
+      "_id": { $in: allEventIds.map(id =>new ObjectId(id)) }
+    }).toArray();
+
+    if (eventsList.length === 0) {
+      throw [404, "No events found for this user"];
+    }
+    return eventsList;
   };
 
   const removeEvent = async (eventId) => {
@@ -188,7 +196,7 @@ const createEvent = async (userId, eventData) => {
       }
   
       // Clear the corresponding event cache in Redis upon successful deletion
-      await client.del(`event:${eventId}`);
+      // await client.del(`event:${eventId}`);
   
       return true;
     } catch (error) {
@@ -251,11 +259,11 @@ const createEvent = async (userId, eventData) => {
   
     try {
       // Check if events for the schedule exist in the Redis cache
-      const existEvents = await client.exists(`schedule:${scheduleId}`);
-      if (existEvents) {
-        const cachedEvents = await client.get(`schedule:${scheduleId}`);
-        return JSON.parse(cachedEvents);
-      }
+      // const existEvents = await client.exists(`schedule:${scheduleId}`);
+      // if (existEvents) {
+      //   const cachedEvents = await client.get(`schedule:${scheduleId}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
       // Fetch events from MongoDB if not found in the cache
       const eventsCollection = await events();
@@ -266,7 +274,7 @@ const createEvent = async (userId, eventData) => {
       }
   
       // Cache the events fetched from the database in Redis
-      await client.set(`schedule:${scheduleId}`, JSON.stringify(events));
+      // await client.set(`schedule:${scheduleId}`, JSON.stringify(events));
   
       return events;
     } catch (error) {
@@ -299,11 +307,11 @@ const createEvent = async (userId, eventData) => {
   
     try {
       // Check if event availability is cached in Redis
-      const isCached = await client.exists(cacheKey);
-      if (isCached) {
-        const cachedAvailability = await client.get(cacheKey);
-        return JSON.parse(cachedAvailability);
-      }
+      // const isCached = await client.exists(cacheKey);
+      // if (isCached) {
+      //   const cachedAvailability = await client.get(cacheKey);
+      //   return JSON.parse(cachedAvailability);
+      // }
   
       // Fetch event availability from MongoDB if not found in the cache
       const eventsCollection = await events();
@@ -320,7 +328,7 @@ const createEvent = async (userId, eventData) => {
       const isAvailable = overlappingEvents.length === 0;
   
       // Cache the event availability in Redis
-      await client.set(cacheKey, JSON.stringify(isAvailable));
+      // await client.set(cacheKey, JSON.stringify(isAvailable));
   
       return isAvailable;
     } catch (error) {
@@ -350,11 +358,11 @@ const createEvent = async (userId, eventData) => {
   
     try {
       // Check if events within the date range are cached in Redis
-      const isCached = await client.exists(`eventsDateRange:${scheduleId}:${startDate}:${endDate}`);
-      if (isCached) {
-        const cachedEvents = await client.get(`eventsDateRange:${scheduleId}:${startDate}:${endDate}`);
-        return JSON.parse(cachedEvents);
-      }
+      // const isCached = await client.exists(`eventsDateRange:${scheduleId}:${startDate}:${endDate}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsDateRange:${scheduleId}:${startDate}:${endDate}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
       // Fetch events within the date range from MongoDB if not found in the cache
       const eventsCollection = await events();
@@ -364,7 +372,7 @@ const createEvent = async (userId, eventData) => {
       }).toArray();
   
       // Cache the events within the date range in Redis
-      await client.set(`eventsDateRange:${scheduleId}:${startDate}:${endDate}`, JSON.stringify(eventsWithinDateRange));
+      // await client.set(`eventsDateRange:${scheduleId}:${startDate}:${endDate}`, JSON.stringify(eventsWithinDateRange));
   
       return eventsWithinDateRange;
     } catch (error) {
@@ -377,11 +385,11 @@ const createEvent = async (userId, eventData) => {
   
     try {
       // Check if events by color code are cached in Redis
-      const isCached = await client.exists(`eventsByColorCode:${colorCode}`);
-      if (isCached) {
-        const cachedEvents = await client.get(`eventsByColorCode:${colorCode}`);
-        return JSON.parse(cachedEvents);
-      }
+      // const isCached = await client.exists(`eventsByColorCode:${colorCode}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByColorCode:${colorCode}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
       // Fetch events by color code from MongoDB if not found in the cache
       const eventsByColorCode = await eventsCollection.find({
@@ -389,7 +397,7 @@ const createEvent = async (userId, eventData) => {
       }).toArray();
   
       // Cache the events by color code in Redis
-      await client.set(`eventsByColorCode:${colorCode}`, JSON.stringify(eventsByColorCode));
+      // await client.set(`eventsByColorCode:${colorCode}`, JSON.stringify(eventsByColorCode));
   
       return eventsByColorCode;
     } catch (error) {
@@ -403,11 +411,11 @@ const createEvent = async (userId, eventData) => {
   
     try {
       // Check if events by color code per user are cached in Redis
-      const isCached = await client.exists(`eventsByColorCodePerUser:${userId}:${colorCode}`);
-      if (isCached) {
-        const cachedEvents = await client.get(`eventsByColorCodePerUser:${userId}:${colorCode}`);
-        return JSON.parse(cachedEvents);
-      }
+      // const isCached = await client.exists(`eventsByColorCodePerUser:${userId}:${colorCode}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByColorCodePerUser:${userId}:${colorCode}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
       // Fetch events by color code per user from MongoDB if not found in the cache
       const eventsByColorCode = await eventsCollection.find({
@@ -416,7 +424,7 @@ const createEvent = async (userId, eventData) => {
       }).toArray();
   
       // Cache the events by color code per user in Redis
-      await client.set(`eventsByColorCodePerUser:${userId}:${colorCode}`, JSON.stringify(eventsByColorCode));
+      // await client.set(`eventsByColorCodePerUser:${userId}:${colorCode}`, JSON.stringify(eventsByColorCode));
   
       return eventsByColorCode;
     } catch (error) {
@@ -429,11 +437,11 @@ const createEvent = async (userId, eventData) => {
   
     try {
       // Check if events by start date are cached in Redis
-      const isCached = await client.exists(`eventsByStartDate:${startDate}`);
-      if (isCached) {
-        const cachedEvents = await client.get(`eventsByStartDate:${startDate}`);
-        return JSON.parse(cachedEvents);
-      }
+      // const isCached = await client.exists(`eventsByStartDate:${startDate}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByStartDate:${startDate}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
       // Fetch events by start date from MongoDB if not found in the cache
       const eventsByStartDate = await eventsCollection.find({
@@ -441,7 +449,7 @@ const createEvent = async (userId, eventData) => {
       }).toArray();
   
       // Cache the events by start date in Redis
-      await client.set(`eventsByStartDate:${startDate}`, JSON.stringify(eventsByStartDate));
+      // await client.set(`eventsByStartDate:${startDate}`, JSON.stringify(eventsByStartDate));
   
       return eventsByStartDate;
     } catch (error) {
@@ -455,11 +463,11 @@ const createEvent = async (userId, eventData) => {
   
     try {
       // Check if events by end date are cached in Redis
-      const isCached = await client.exists(`eventsByEndDate:${endDate}`);
-      if (isCached) {
-        const cachedEvents = await client.get(`eventsByEndDate:${endDate}`);
-        return JSON.parse(cachedEvents);
-      }
+      // const isCached = await client.exists(`eventsByEndDate:${endDate}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByEndDate:${endDate}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
       // Fetch events by end date from MongoDB if not found in the cache
       const eventByEndDate = await eventsCollection.find({
@@ -467,7 +475,7 @@ const createEvent = async (userId, eventData) => {
       }).toArray();
   
       // Cache the events by end date in Redis
-      await client.set(`eventsByEndDate:${endDate}`, JSON.stringify(eventByEndDate));
+      // await client.set(`eventsByEndDate:${endDate}`, JSON.stringify(eventByEndDate));
   
       return eventByEndDate;
     } catch (error) {
@@ -482,11 +490,11 @@ const createEvent = async (userId, eventData) => {
   
     try {
       // Check if events by classification are cached in Redis
-      const isCached = await client.exists(`eventsByClassification:${classification}`);
-      if (isCached) {
-        const cachedEvents = await client.get(`eventsByClassification:${classification}`);
-        return JSON.parse(cachedEvents);
-      }
+      // const isCached = await client.exists(`eventsByClassification:${classification}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByClassification:${classification}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
       // Fetch events by classification from MongoDB if not found in the cache
       const eventByClassification = await eventsCollection.find({
@@ -494,7 +502,7 @@ const createEvent = async (userId, eventData) => {
       }).toArray();
   
       // Cache the events by classification in Redis
-      await client.set(`eventsByClassification:${classification}`, JSON.stringify(eventByClassification));
+      // await client.set(`eventsByClassification:${classification}`, JSON.stringify(eventByClassification));
   
       return eventByClassification;
     } catch (error) {
@@ -507,11 +515,11 @@ const createEvent = async (userId, eventData) => {
   
     try {
       // Check if events by classification per user are cached in Redis
-      const isCached = await client.exists(`eventsByClassificationByUser:${userId}:${classification}`);
-      if (isCached) {
-        const cachedEvents = await client.get(`eventsByClassificationByUser:${userId}:${classification}`);
-        return JSON.parse(cachedEvents);
-      }
+      // const isCached = await client.exists(`eventsByClassificationByUser:${userId}:${classification}`);
+      // if (isCached) {
+      //   const cachedEvents = await client.get(`eventsByClassificationByUser:${userId}:${classification}`);
+      //   return JSON.parse(cachedEvents);
+      // }
   
       // Fetch events by classification per user from MongoDB if not found in the cache
       const eventByClassification = await eventsCollection.find({
@@ -520,7 +528,7 @@ const createEvent = async (userId, eventData) => {
       }).toArray();
   
       // Cache the events by classification per user in Redis
-      await client.set(`eventsByClassificationByUser:${userId}:${classification}`, JSON.stringify(eventByClassification));
+      // await client.set(`eventsByClassificationByUser:${userId}:${classification}`, JSON.stringify(eventByClassification));
   
       return eventByClassification;
     } catch (error) {
