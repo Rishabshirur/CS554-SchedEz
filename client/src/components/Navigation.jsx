@@ -43,7 +43,7 @@ const NavigationAuth = () => {
         <NavLink to="/all-events" className='nav-link'>View All My Events</NavLink>
       </li>
       <li>
-        <NavLink to="/events-today" className='nav-link'>View Today's Events</NavLink>
+        <NavLink to="/events-today" className='nav-link'>Today's Reminders</NavLink>
       </li>
       <li>
         <NavLink to="/invites" className='nav-link'>View Event Invites</NavLink>
