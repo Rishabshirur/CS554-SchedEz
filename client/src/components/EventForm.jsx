@@ -2,6 +2,8 @@ import { useState,useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import actions from '../actions';
 import axios from 'axios';
+import validations from './../../validation';
+import { errorObject,errorType } from '../../badInputs';
 import { getAuth } from 'firebase/auth';
 import TextField from '@mui/material/TextField';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -65,11 +67,34 @@ function EventForm() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    try{
+    validations.checkString(eventName, "Event Name");
+    //  //do validation for other inputs
+    validations.checkDate(startDateTime.toString(),"Start DateTime")
+    validations.checkDate(endDateTime.toString(),"End DateTime")
+    var checStartDatetime = new Date(startDateTime)
+    var checkEndDatetime = new Date(endDateTime)
+    if(checStartDatetime>=checkEndDatetime){
+      throw errorObject(errorType.BAD_INPUT, `Start Datetime cannot be greater than or equal to End Datetime`);
+    }
+    validations.checkString(desc, "Classification");
+    if(!(color === "Red" || color === "Yellow" || color === "Blue")){
+      throw errorObject(errorType.BAD_INPUT, `Color not present`);
+    }
+    if(schedule){
+    validations.checkSchedule(schedule,"Schedule Name"); }
     if (!endDateTime.isAfter(startDateTime)) {
       console.error('End date must be greater than start date');
       setErrorMessage('End date must be strictly greater than start date.');
       return;
     }
+  }
+  catch(e){
+    console.log(e)
+    setErrorMessage(e.message);
+    return;
+  }
+
     console.log(schedule)
     let obj={
       eventName,
@@ -106,6 +131,7 @@ function EventForm() {
       setUserEvents([...userEvents, eventId]);
     } catch (e) {
       console.error(e);
+      setErrorMessage(e)
     }
       setEventName('');
       setDesc('');
@@ -113,6 +139,8 @@ function EventForm() {
       setEndDateTime(dayjs().tz('America/New_York'));
       setColor('');
       setErrorMessage('');
+      setSchedule('')
+      setShareEvent('');
       setEventData({
         eventName: '',
         dateTime: '',
