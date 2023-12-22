@@ -81,7 +81,6 @@ function UpdateProfile() {
   return (
     <div>
       <h4 className='error'></h4>
-      <h2>Hi {currentUser.displayName}, You can view and update your Profile here</h2>
       <form onSubmit={submitForm} encType="multipart/form-data">
         <div className='form-group'>
         </div>
@@ -102,7 +101,7 @@ function UpdateProfile() {
         />
       </div>
         <button className='button' type='submit'>
-          Update
+          Update Profile Picture
         </button>
       </form>
       <br />

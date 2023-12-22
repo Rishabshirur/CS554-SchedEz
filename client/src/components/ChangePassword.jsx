@@ -67,6 +67,24 @@ useEffect(() => {},[userName])
       <div>
         {pwMatch && <h4 className='error'>{pwMatch}</h4>}
         <h2>Hi {userName}, You can view and update your Profile here</h2>
+        <form onSubmit={submitChangeProfileForm}>
+          <div className='form-group'>
+            <label>
+              Username:
+              <input
+                className='form-control'
+                name='username'
+                id='username'
+                type='text'
+                defaultValue={userName}
+              />
+            </label>
+          </div>
+          <br />
+          <button className='button' type='submit'>
+            Update Username
+          </button>
+        </form>
         <form onSubmit={submitChangePasswordForm}>
           <div className='form-group'>
             <label>
@@ -116,6 +134,7 @@ useEffect(() => {},[userName])
             Change Password
           </button>
         </form>
+    
        
         <br />
       </div>
