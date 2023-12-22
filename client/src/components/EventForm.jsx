@@ -2,6 +2,8 @@ import { useState,useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import actions from '../actions';
 import axios from 'axios';
+import validations from './../../validation';
+import { errorObject,errorType } from '../../badInputs';
 import { getAuth } from 'firebase/auth';
 import TextField from '@mui/material/TextField';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -36,7 +38,8 @@ function EventForm() {
   const [eventName, setEventName]= React.useState('')
   const [color, setColor] = React.useState('');
   const [userEvents, setUserEvents] = useState([]);
-  const [schedule,setSchedule] = useState('')
+  const [schedule,setSchedule] = useState('');
+  const [shareEvent, setShareEvent] = useState('');
 
   const handleChange = (event) => {
     setColor(event.target.value);
@@ -49,7 +52,7 @@ function EventForm() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response1 = await axios.get(`http://localhost:3000/schedule/${auth.currentUser.uid}`); // Replace with your actual API endpoint
+        const response1 = await axios.get(`http://localhost:3000/schedule/${auth.currentUser.uid}`); 
         console.log("checkBox Options",response1)
         setCheckboxOptions(response1.data.schedules);
       } catch (error) {
@@ -64,11 +67,44 @@ function EventForm() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    try{
+    validations.checkString(eventName, "Event Name");
+    //  //do validation for other inputs
+    validations.checkDate(startDateTime.toString(),"Start DateTime")
+    validations.checkDate(endDateTime.toString(),"End DateTime")
+    var checStartDatetime = new Date(startDateTime)
+    var checkEndDatetime = new Date(endDateTime)
+    if(checStartDatetime>=checkEndDatetime){
+      throw errorObject(errorType.BAD_INPUT, `Start Datetime cannot be greater than or equal to End Datetime`);
+    }
+    validations.checkString(desc, "Classification");
+    if(!(color === "Red" || color === "Yellow" || color === "Blue")){
+      throw errorObject(errorType.BAD_INPUT, `Color not present`);
+    }
+    if(schedule){
+    validations.checkSchedule(schedule,"Schedule Name"); }
     if (!endDateTime.isAfter(startDateTime)) {
       console.error('End date must be greater than start date');
       setErrorMessage('End date must be strictly greater than start date.');
       return;
     }
+
+    if (new Date(startDateTime) < new Date()) {
+      setErrorMessage('Start date cannot be before Current Date & Time');
+      return;
+    }
+
+    if (new Date(endDateTime) < new Date()) {
+      setErrorMessage('End date cannot be before Current Time');
+      return;
+    }
+  }
+  catch(e){
+    console.log(e)
+    setErrorMessage(e.message);
+    return;
+  }
+
     console.log(schedule)
     let obj={
       eventName,
@@ -76,7 +112,8 @@ function EventForm() {
       startDateTime,
       endDateTime,
       color,
-      schedule
+      schedule,
+      shareEvent
     }
     console.log(obj)
 
@@ -104,6 +141,7 @@ function EventForm() {
       setUserEvents([...userEvents, eventId]);
     } catch (e) {
       console.error(e);
+      setErrorMessage(e)
     }
       setEventName('');
       setDesc('');
@@ -111,6 +149,8 @@ function EventForm() {
       setEndDateTime(dayjs().tz('America/New_York'));
       setColor('');
       setErrorMessage('');
+      setSchedule('')
+      setShareEvent('');
       setEventData({
         eventName: '',
         dateTime: '',
@@ -183,7 +223,7 @@ function EventForm() {
         >
           {checkboxOptions &&
             checkboxOptions.map((option) => (
-              <MenuItem value={option.schedule_name} key={option.schedule_name}>
+              <MenuItem value={option._id} key={option.schedule_name}>
                 {option.schedule_name}
               </MenuItem>
             ))}
@@ -195,6 +235,15 @@ function EventForm() {
           label="Description"
           value={desc}
           onChange={(newValue) => setDesc(newValue.target.value)}
+          style={{ marginBottom: '16px' }}
+        />
+
+        <TextField
+          type="text"
+          name="shareEvent"
+          label="Add people"
+          value={shareEvent}
+          onChange={(newValue) => setShareEvent(newValue.target.value)}
           style={{ marginBottom: '16px' }}
         />
 

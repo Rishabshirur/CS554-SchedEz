@@ -9,11 +9,12 @@ import {
     GoogleAuthProvider,
     sendPasswordResetEmail,
     EmailAuthProvider,
-    reauthenticateWithCredential
+    reauthenticateWithCredential,
+    updateEmail
   } from 'firebase/auth';
   import axios from 'axios'
   import {useContext} from 'react';
-import {AuthContext} from '../context/AuthContext';
+// import {AuthContext} from '../context/AuthContext';
 import {useSelector, useDispatch} from 'react-redux';
 import actions from '../actions.js'
   
@@ -55,7 +56,50 @@ async function doCreateUserWithEmailAndPassword(email, password, displayName) {
     console.error("Error creating user:", error.message);
   }
 }
-  
+
+async function updateUserProfile(displayName) {
+  const auth = getAuth();
+
+  try {
+    // Update user profile
+    await updateProfile(auth.currentUser, { displayName});
+    //await updateEmail(auth.currentUser, email);
+
+    // // Post user data to your server
+    // await axios.post("http://localhost:3000/user/all-users", {
+    //   id: user.uid,
+    //   username: user.displayName,
+    //   email: user.email
+    // });
+
+    console.log("User profile updated successfully.");
+  } catch (error) {
+    console.error("Error creating user:", error.message);
+  }
+}
+
+async function updateUserProfilePhoto(photoURL) {
+  const auth = getAuth();
+
+  console.log("ddadas", auth.currentUser)
+  try {
+    // Update user profile
+    await updateProfile(auth.currentUser, { photoURL});
+    //await updateEmail(auth.currentUser, email);
+
+    // // Post user data to your server
+    // await axios.post("http://localhost:3000/user/all-users", {
+    //   id: user.uid,
+    //   username: user.displayName,
+    //   email: user.email
+    // });
+
+    console.log("User profile photo updated successfully.");
+  } catch (error) {
+    console.error("Error creating user:", error.message);
+  }
+}
+
   async function doChangePassword(email, oldPassword, newPassword) {
     const auth = getAuth();
     let credential = EmailAuthProvider.credential(email, oldPassword);
@@ -95,7 +139,9 @@ async function doCreateUserWithEmailAndPassword(email, password, displayName) {
     doCreateUserWithEmailAndPassword,
     doSocialSignIn,
     doSignInWithEmailAndPassword,
+    updateUserProfilePhoto,
     doPasswordReset,
     doSignOut,
-    doChangePassword
+    doChangePassword,
+    updateUserProfile
   };

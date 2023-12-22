@@ -2,8 +2,32 @@ import { Router } from "express";
 import { userData } from "../data/index.js";
 import validation from '../validation.js'
 import { ObjectId } from "mongodb";
+import multer from 'multer'
+import fs from 'fs';
+import im from 'imagemagick';
 
 const router = Router();
+
+const mimes = ['image/jpg', 'image/jpeg', 'image/png'];
+
+const acceptedImgs = (req, file, cb) => {
+	console.log(file.mimetype);
+	if (mimes.includes(file.mimetype)) cb(null, true);
+	else cb(null, false);
+};
+
+const storage= multer.diskStorage({
+  destination: './public/data/uploads/',
+  filename: function ( req, file, cb ) {
+    cb( null, file.originalname);
+}
+
+})
+
+const upload = multer({
+  storage: storage,
+  fileFilter: acceptedImgs
+});
 
 router.get("/all-users", async (req, res) => {
     try {
@@ -82,5 +106,52 @@ router.post("/all-users", async (req,res) => {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   })
+  router.put('/:id',async (req,res) => {
+    const id = req.body.userId;
+    const obj = req.body.obj
 
+    // if (!ObjectId.isValid(id)) {
+    //   return res.status(400).json({ message: 'Invalid user ID' });
+    // }
+  
+    try {
+      const result = await userData.update(id, obj)
+      if(!result){
+        return res.status(500).json({error: "Unable to add user in MongoDB"})
+      }  
+      // "Unable to add user in MongoDB" 
+      return res.status(200).json(result);
+    } catch (e) {
+      return res.status(400).json({error: e})
+    }
+
+  })
+
+
+
+  router.post("/:id/photo", upload.single('file'),async (req, res) => {
+    console.log(JSON.stringify(req.body))
+    console.log(req.file.path)
+    if(req.file){
+    console.log("photo route running") 
+    im.resize({
+      srcPath: req.file.path,
+      dstPath: 'D:\My folder\Stevens University assignment\All_554_assignments\Final_Project\CS554-SchedEz\server\public\data\\uploads',
+      width:   15,
+      height: 10
+    }, function(err, stdout, stderr){
+      console.log(err)
+      console.log('resized kittens.jpg to fit within 256x256px');
+    });
+  }
+  // im.resize({
+  //   srcData: fs.readFileSync(req.file.path, 'binary'),
+  //   width:   256
+  // }, function(err, stdout, stderr){
+  //   if (err) throw err
+  //   fs.writeFileSync('kittens-resized.jpg', stdout, 'binary');
+  //   console.log('resized kittens.jpg to fit within 256x256px')
+  // });
+  })
+  
   export default router;

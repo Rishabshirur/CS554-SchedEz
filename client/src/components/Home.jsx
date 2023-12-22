@@ -87,11 +87,14 @@ import ScheduleForm from './ScheduleForm';
 import { Link } from 'react-router-dom';
 // import Event from '../../../server/data/event';
 import EventCalendar from './EventCalendar';
+import RequestModal from './requestModal';
 
 function Home() {
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shouldUpdateCalendar, setShouldUpdateCalendar] = useState(false);
+
+  
 
   const handleUpdateCalendar = () => {
     setShouldUpdateCalendar(!shouldUpdateCalendar);
@@ -139,19 +142,11 @@ function Home() {
   return (
     <div className='card'>
       <h2>
-        Hello {currentUser && currentUser.displayName}, this is the Protected
-        Home page
-        Name: {currentUserState?.name}
-        Email: {currentUserState?.email}
+        Hello {currentUser && currentUser.displayName}, Welcome to SchedEz
       </h2>
-      
-      
-    
-      <Link to="/all-events">View My All Events</Link>
+
+      <button onClick={openEventModal}>Add Event</button>
       <br/>
-      <Link to="/events-today">View Today's Events</Link>
-      <br/>
-      <button onClick={openEventModal}>Open Event Form</button>
       {isEventModalOpen && (
         <div className="modal-overlay">
           <div className="modal">
@@ -162,6 +157,7 @@ function Home() {
           </div>
         </div>
       )}
+      <br/>
       <button onClick={openScheduleModal}>Add Schedule</button>
       {isScheduleModalOpen && (
         <div className="modal-overlay">
@@ -173,6 +169,7 @@ function Home() {
           </div>
         </div>
       )}
+      <RequestModal onUpdateCalendar={handleUpdateCalendar}/>
       <EventCalendar shouldUpdateCalendar={shouldUpdateCalendar}/>
     </div>
   );

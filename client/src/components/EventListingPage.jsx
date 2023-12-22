@@ -24,6 +24,7 @@ function EventListingPage() {
       } else if (selectedFilter === 'colorCode') {
         if (colorCodeFilter) {
           response = await axios.get(`http://localhost:3000/event/${auth.currentUser.uid}/filter/colorCode/${colorCodeFilter}`);
+          console.log("here", response.data.events)
         } else {
           response = await axios.get(`http://localhost:3000/event/${auth.currentUser.uid}`);
         }

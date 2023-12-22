@@ -1,3 +1,4 @@
+import actions from "../actions";
 
 const initalState = {
     currentUser: {
@@ -8,7 +9,7 @@ const initalState = {
     isActive: false 
   },
 };
-
+const imageLink = '';
   // let copyState = null;
   // let index = 0;
   
@@ -45,4 +46,18 @@ const initalState = {
 
 }
 
-export default userInfo
+const image = (image = imageLink,action) => {
+  const {type, payload} = action;
+
+  switch (type) {
+    case 'SET_IMAGE':
+      return {
+        ...image,
+        image: payload.image
+  };
+    default:
+      return image;  
+  }  
+}
+
+export {userInfo,image}

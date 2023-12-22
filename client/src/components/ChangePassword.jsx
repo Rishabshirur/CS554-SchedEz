@@ -1,14 +1,19 @@
-import {useContext, useState} from 'react';
+import {useContext, useState, useEffect} from 'react';
 import {AuthContext} from '../context/AuthContext';
 import {doChangePassword} from '../firebase/FirebaseFunctions';
+import {updateUserProfile} from '../firebase/FirebaseFunctions';
+import axios from 'axios';
 import '../App.css';
 
 function ChangePassword() {
   const {currentUser} = useContext(AuthContext);
   const [pwMatch, setPwMatch] = useState('');
+  const [userName,setUserName] = useState(currentUser.displayName);
+  const [file, setFile] = useState(null);
   console.log(currentUser);
 
-  const submitForm = async (event) => {
+
+  const submitChangePasswordForm = async (event) => {
     event.preventDefault();
     const {currentPassword, newPasswordOne, newPasswordTwo} =
       event.target.elements;
@@ -30,12 +35,57 @@ function ChangePassword() {
     }
   };
 
+  function handleChange(e) {
+    setFile(e.target.files[0]);
+}
+
+  const submitChangeProfileForm = async (event) => {
+    event.preventDefault();
+    const {username} = event.target.elements
+    let obj = {
+        username: username.value
+    }
+    try{
+
+        console.log(username.value)
+        await updateUserProfile(username.value)
+        
+        const response = await axios.put(`http://localhost:3000/user/${currentUser.uid}`, {
+          userId: currentUser.uid,
+          obj,
+        });
+        console.log(currentUser)
+        setUserName(currentUser.displayName);
+      }
+      catch(e){
+        console.error(e);
+      }
+}
+useEffect(() => {},[userName])
   if (currentUser.providerData[0].providerId === 'password') {
     return (
       <div>
         {pwMatch && <h4 className='error'>{pwMatch}</h4>}
-        <h2>Hi {currentUser.displayName}, Change Your Password Below</h2>
-        <form onSubmit={submitForm}>
+        <h2>Hi {userName}, You can view and update your Profile here</h2>
+        <form onSubmit={submitChangeProfileForm}>
+          <div className='form-group'>
+            <label>
+              Username:
+              <input
+                className='form-control'
+                name='username'
+                id='username'
+                type='text'
+                defaultValue={userName}
+              />
+            </label>
+          </div>
+          <br />
+          <button className='button' type='submit'>
+            Update Username
+          </button>
+        </form>
+        <form onSubmit={submitChangePasswordForm}>
           <div className='form-group'>
             <label>
               Current Password:
@@ -84,6 +134,8 @@ function ChangePassword() {
             Change Password
           </button>
         </form>
+    
+       
         <br />
       </div>
     );
