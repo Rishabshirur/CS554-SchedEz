@@ -41,6 +41,28 @@ const createRequest = async (sender_email, receiver_email, event) => {
     return { requestId: insertedId };
 }
 
+const createMultiRequest = async (sender_email, event, inviteEmails) => {
+  let errors = [];
+  let arr=[]
+  try {
+    for (let receiver_emailId of inviteEmails) {
+      let receiverInsertInfo = await createRequest(sender_email, receiver_emailId, event);
+      if (!receiverInsertInfo.requestId) {
+          throw [404, "Could not add new request"];
+      }
+      arr.push(receiverInsertInfo.requestId)
+  }
+  
+
+  } catch (error) {
+    errors.push(error?.message);
+  }
+  if (errors.length > 0) {
+    throw [400, errors];
+  }
+  return arr;
+}
+
 const getRequestById = async (id) => {
     if (!id || typeof id !== "string" || id.trim().length === 0) {
       throw new Error("Invalid id");
@@ -152,4 +174,4 @@ const getRequestsByEmail = async (receiver_email) => {
   };
   
 
-export default {createRequest, getRequestsByEmail, getAllRequestsByEmail}
+export default {createRequest, getRequestsByEmail, getAllRequestsByEmail, createMultiRequest}

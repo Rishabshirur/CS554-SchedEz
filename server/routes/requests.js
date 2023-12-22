@@ -28,6 +28,49 @@ router.get("/allRequests/:emailId", async (req, res) => {
   }
 })
 
+router.post("/multiple", async (req, res) => {
+  let requestInfo = req.body;
+  let errors = [];
+  try {
+      requestInfo.sender_email = validations.checkMailID(requestInfo.sender_email, "userId");
+  } catch (e) {
+    console.log(e);
+    errors.push(e?.message);
+  }
+  try {
+    if (Array.isArray(requestInfo.inviteEmails)) {
+      if(requestInfo.inviteEmails.length==0){ throw 'Invite emails not provided' } 
+      requestInfo.inviteEmails.forEach(email => {
+        validations.checkMailID(email, "inviteEmail");
+      });
+    } else {
+      throw 'Invalid Invite emails';
+    }
+  } catch (e) {
+    console.error(e);
+    console.log("E",e)
+    errors.push(e?.message);
+  }
+
+  console.log("error check",errors)
+  if (errors.length > 0) {
+    return res.status(400).send(errors[0]);
+  }
+
+  try {
+    const result = await requestData.createMultiRequest(
+      requestInfo.sender_email,
+      requestInfo.event,
+      requestInfo.inviteEmails      
+    );
+    return res.json(result);
+  } catch (e) {
+    console.error(e);
+    const msg = e?.[1] || e?.message;
+    return res.status(e?.[0] || 500).send({ errors: msg || "Internal Server Error" });
+  }
+});
+
 router.post("/", async (req, res) => {
   let requestInfo = req.body;
   let errors = [];

@@ -47,6 +47,7 @@ const EventDetail = () => {
       setInitialEventDetail(event);
     } catch (error) {
       console.error('Error fetching event details:', error);
+      setErrorMessage('Error fetching event details. Please try again.');
     }
   };
 
@@ -70,6 +71,7 @@ const EventDetail = () => {
       navigate('/all-events');
     } catch (error) {
       console.error('Error deleting event:', error);
+      setErrorMessage('Error deleting event. Please try again.');
     }
   };
 
@@ -80,6 +82,7 @@ const EventDetail = () => {
       setErrorMessage('End date cannot be before start date');
       return;
     }
+
     try {
       await axios.patch(`http://localhost:3000/event/${eventId}`, editedEvent);
       fetchEventDetails();
@@ -88,6 +91,7 @@ const EventDetail = () => {
       setErrorMessage('');
     } catch (error) {
       console.error('Error editing event:', error);
+      setErrorMessage('Error editing event. Please try again.');
     }
   };
 
@@ -121,7 +125,21 @@ const EventDetail = () => {
   };
 
   const handleShareEvent = async () => {
-    // Add logic to send emails to the backend or any other desired action
+    try {
+      const response = await axios.post('http://localhost:3000/requests/multiple', {
+        sender_email: auth.currentUser.email,
+        event: eventDetail,
+        inviteEmails: shareEventEmails.split(',').map(email => email.trim())
+      });
+
+      console.log("Invites sent");
+    } catch (error) {
+      // console.error('Error sending invites:', error);
+      console.log(error)
+      setErrorMessage(error.message);
+      return;
+    }
+
     console.log('Sharing event with emails:', shareEventEmails);
     setShareEventEmails('');
     setIsSharing((prevIsSharing) => !prevIsSharing);
@@ -130,7 +148,7 @@ const EventDetail = () => {
 
   return (
     <div>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      {errorMessage && typeof errorMessage === 'string' && <p style={{ color: 'red' }}>{errorMessage}</p>}
       {!isEditing ? (
         <div>
           <h2>{eventDetail.event_name}</h2>
