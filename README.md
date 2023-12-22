@@ -33,3 +33,8 @@ https://github.com/sachindevangan/CS554-SchedEz
  1. Daily reminders - Reminder that tells you which events are today
  2. ImageMagick - Transforms and manipulate your image and saves in the server to reduce the server load.
  3. Docker -
+
+ ##Credentials for seed user:
+ 1. email: user1@gmail.com, password: SchedEz@user1
+ 2. email: user2@gmail.com, password: SchedEz@user2
+ 3. email: user3@gmail.com, password: SchedEz@user3
