@@ -125,6 +125,33 @@ const EventDetail = () => {
   };
 
   const handleShareEvent = async () => {
+
+    if(shareEventEmails.trim().length == 0){
+      setErrorMessage('Please Enter atleast one valid Email Id');
+      return;
+    }
+
+    // let splitShareEvents = shareEventEmails.split(',').map(email => email.trim())
+
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Regex to validate email address
+    // if (!emailRegex.test(splitShareEvents.trim())) {
+    //   setErrorMessage('Please Enter atleast one valid Email Id');
+    //   return;
+    // }
+    // if(email.length > 30 || email.length < 0){
+    //   setErrorMessage('Please Enter atleast one valid Email Id');
+    //   return;
+    // }
+
+
+    // receivers = eventData.shareEvent.split(',').map(email => email.trim());
+    //   console.log(receivers);
+    //   for (let receiver_emailId of receivers) {
+    //       let receiver = await userCollection.findOne({ email: receiver_emailId });
+    //       if (!receiver) {
+    //           throw [404, `No user exists with emailId: ${receiver_emailId}`];
+    //       }
+    //   }  
     try {
       const response = await axios.post('http://localhost:3000/requests/multiple', {
         sender_email: auth.currentUser.email,

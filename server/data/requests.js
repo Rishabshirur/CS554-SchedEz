@@ -46,6 +46,13 @@ const createMultiRequest = async (sender_email, event, inviteEmails) => {
   let arr=[]
   try {
     for (let receiver_emailId of inviteEmails) {
+      let userCollection = await users();
+      let receiver = await userCollection.findOne({ email: receiver_emailId });
+      if (!receiver) {
+          throw [404, `No user exists with emailId: ${receiver_emailId}`];
+      }
+  }  
+    for (let receiver_emailId of inviteEmails) {
       let receiverInsertInfo = await createRequest(sender_email, receiver_emailId, event);
       if (!receiverInsertInfo.requestId) {
           throw [404, "Could not add new request"];
