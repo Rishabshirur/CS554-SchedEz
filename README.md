@@ -15,6 +15,16 @@ https://github.com/sachindevangan/CS554-SchedEz
 
  ## Prerequisite
 
- ## Steps to execute the application
+ Need to Install imagemagick
+ Need to install Docker Desktop
+
+ ## Steps to execute the application using Docker:
+
+ 1. Go to /server directory and execute npm run seed to populate database.
+ 2. Go to /server/config/settings.js and uncomment the line "serverUrl: 'mongodb://host.docker.internal:27017/' "  and comment the line " serverUrl: 'mongodb://127.0.0.1:27017/' "
+ 3. Move to root directory.
+ 4. Execute the command ' docker-compose build '
+ 5. Execute the command ' docker-compose up '
 
  ## Important points to note
+ Ensure that docker-compose is installed along with Docker Desktop.
