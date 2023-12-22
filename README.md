@@ -28,3 +28,8 @@ https://github.com/sachindevangan/CS554-SchedEz
 
  ## Important points to note
  Ensure that docker-compose is installed along with Docker Desktop.
+
+ ## Features : 
+ 1. Daily reminders - Reminder that tells you which events are today
+ 2. ImageMagick - Transforms and manipulate your image and saves in the server to reduce the server load.
+ 3. Docker -
