@@ -78,6 +78,54 @@ const EventDetail = () => {
   const handleEdit = async (e) => {
     e.preventDefault();
 
+    console.log(editedEvent)
+    if(typeof editedEvent.event_name !== "string" ){
+      setErrorMessage('Event name must be a string')
+      return;
+    }
+
+    if(editedEvent.event_name.trim().length === 0){
+      setErrorMessage('Event name must be a non-empty string.')
+      return;
+    }
+
+    if (!/^[A-Za-z0-9\s]*$/.test(editedEvent.event_name.trim())) {
+      setErrorMessage('Event name must be a alphanumeric with spaces.' );
+      return;
+    }
+
+
+    if(typeof editedEvent.classification !== "string" ){
+      setErrorMessage('Classification must be a string')
+      return;
+    }
+
+    if(editedEvent.classification.trim().length === 0){
+      setErrorMessage('Classification must be a non-empty string.')
+      return;
+    }
+
+    if (!/^[A-Za-z0-9\s]*$/.test(editedEvent.classification.trim())) {
+      setErrorMessage('Classification must be a alphanumeric with spaces.' );
+      return;
+    }
+    const validColors = ["Red", "Yellow", "Blue"];
+
+    if (!validColors.includes(editedEvent.color_code)) {
+      setErrorMessage('Color Code must be "Red," "Yellow," or "Blue."');
+      return;
+    }
+
+    if (new Date(editedEvent.start_datetime) < new Date()) {
+      setErrorMessage('Start date cannot be before Current Date & Time');
+      return;
+    }
+
+    if (new Date(editedEvent.end_datetime) < new Date()) {
+      setErrorMessage('End date cannot be before Current Time');
+      return;
+    }
+
     if (new Date(editedEvent.end_datetime) < new Date(editedEvent.start_datetime)) {
       setErrorMessage('End date cannot be before start date');
       return;
@@ -241,13 +289,24 @@ const EventDetail = () => {
                   onChange={(e) => setEditedEvent({ ...editedEvent, end_datetime: e.target.value })}
                 />
               </label>
-              <label>
+              {/* <label>
                 Color Code:
                 <input
                   type="text"
                   value={editedEvent.color_code || ''}
                   onChange={(e) => setEditedEvent({ ...editedEvent, color_code: e.target.value })}
                 />
+              </label> */}
+              <label>
+                Color Code:
+                <select
+                  value={editedEvent.color_code || ''}
+                  onChange={(e) => setEditedEvent({ ...editedEvent, color_code: e.target.value })}
+                >
+                  <option value="Red">Red</option>
+                  <option value="Yellow">Yellow</option>
+                  <option value="Blue">Blue</option>
+                </select>
               </label>
               <label>
                 Classification:

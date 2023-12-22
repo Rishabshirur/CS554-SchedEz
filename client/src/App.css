@@ -205,13 +205,13 @@ input {
 }
 
 /* List styles */
-.navul {
+/* .navul {
   list-style-type: none;
   padding: 0;
   margin: 0;
-  display: flex; /* Make list items display horizontally */
-  gap: 20px; /* Add some space between list items */
-}
+  display: flex; /* Make list items display horizontally
+  gap: 20px; /* Add some space between list items *
+} */
 
 /* List item styles */
 li {
@@ -231,4 +231,28 @@ li {
   height: 40px;
   border-radius: 50%; /* Create a circular shape */
   object-fit: cover; /* Ensure the image covers the circle */
+}
+
+
+.navul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.navul li {
+  display: inline;
+  margin-right: 10px;
+}
+
+.nav-link {
+  text-decoration: none;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: #080000;
+  border-color: #ccc;
 }

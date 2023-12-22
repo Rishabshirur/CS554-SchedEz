@@ -36,21 +36,21 @@ const NavigationAuth = () => {
         </div>
         )}
       <ul className=' navul'>
-        <li>
-          <NavLink to='/home' className='nav-link'>Home</NavLink>
-        </li>
-        <li>
-          <NavLink to="/all-events">View All My Events</NavLink>
-        </li>
-        <li>
-          <NavLink to="/events-today">View Today's Events</NavLink>
-        </li>
-        <li>
-          <NavLink to="/invites">View Event Invites</NavLink>
-        </li>
-        <li>
-          <NavLink to='/account' className='nav-link'>Profile</NavLink>
-        </li>
+      <li>
+        <NavLink to='/home' className='nav-link'>Home</NavLink>
+      </li>
+      <li>
+        <NavLink to="/all-events" className='nav-link'>View All My Events</NavLink>
+      </li>
+      <li>
+        <NavLink to="/events-today" className='nav-link'>View Today's Events</NavLink>
+      </li>
+      <li>
+        <NavLink to="/invites" className='nav-link'>View Event Invites</NavLink>
+      </li>
+      <li>
+        <NavLink to='/account' className='nav-link'>Profile</NavLink>
+      </li>
         <li>
           <SignOutButton />
         </li>
@@ -64,14 +64,14 @@ const NavigationNonAuth = () => {
     <nav className='navigation'>
       <ul className='navul'>
         <li>
-          <NavLink to='/'>Landing</NavLink>
+          <NavLink to='/' className='nav-link'>Landing</NavLink>
         </li>
         <li>
-          <NavLink to='/signup'>Sign-up</NavLink>
+          <NavLink to='/signup' className='nav-link'>Sign-up</NavLink>
         </li>
 
         <li>
-          <NavLink to='/signin'>Sign-In</NavLink>
+          <NavLink to='/signin' className='nav-link'>Sign-In</NavLink>
         </li>
       </ul>
     </nav>
