@@ -96,17 +96,17 @@ const EventDetail = () => {
 
 
     if(typeof editedEvent.classification !== "string" ){
-      setErrorMessage('Classification must be a string')
+      setErrorMessage('Description must be a string')
       return;
     }
 
     if(editedEvent.classification.trim().length === 0){
-      setErrorMessage('Classification must be a non-empty string.')
+      setErrorMessage('Description must be a non-empty string.')
       return;
     }
 
     if (!/^[A-Za-z0-9\s]*$/.test(editedEvent.classification.trim())) {
-      setErrorMessage('Classification must be a alphanumeric with spaces.' );
+      setErrorMessage('Description must be a alphanumeric with spaces.' );
       return;
     }
     const validColors = ["Red", "Yellow", "Blue"];
@@ -222,25 +222,26 @@ const EventDetail = () => {
   };
 
   return (
-    <div>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+    <div style={{ width: '80vw' }}>
       {errorMessage && typeof errorMessage === 'string' && <p style={{ color: 'red' }}>{errorMessage}</p>}
       {!isEditing ? (
         <div>
           <h2>{eventDetail.event_name}</h2>
           <p>
-            <strong>Start Date and Time:</strong> {formatDate(eventDetail.start_datetime)}
+          <span style={{ fontWeight: 'bold' }}>Start Date and Time:</span> {formatDate(eventDetail.start_datetime)}
           </p>
           <p>
-            <strong>End Date and Time:</strong> {formatDate(eventDetail.end_datetime)}
+          <span style={{ fontWeight: 'bold' }}>End Date and Time:</span> {formatDate(eventDetail.end_datetime)}
           </p>
           <p>
-            <strong>Color Code:</strong> {eventDetail.color_code}
+          <span style={{ fontWeight: 'bold' }}>Color Code:</span> {eventDetail.color_code}
           </p>
           <p>
-            <strong>Classification:</strong> {eventDetail.classification}
+          <span style={{ fontWeight: 'bold' }}>Description:</span> {eventDetail.classification}
           </p>
           <p>
-            <strong>People attending:</strong> {userCount}
+          <span style={{ fontWeight: 'bold' }}>People attending:</span> {userCount}
           </p>
           <button onClick={handleEditClick}>Edit Event</button>
           <button onClick={handleDelete}>Delete Event</button>
@@ -309,9 +310,10 @@ const EventDetail = () => {
                 </select>
               </label>
               <label>
-                Classification:
-                <input
-                  type="text"
+                Description:
+                <textarea
+                  style={{ width: '80vw'}}
+                  rows={4}
                   value={editedEvent.classification || ''}
                   onChange={(e) => setEditedEvent({ ...editedEvent, classification: e.target.value })}
                 />
@@ -323,6 +325,7 @@ const EventDetail = () => {
       )}
 
       
+    </div>
     </div>
   );
 };

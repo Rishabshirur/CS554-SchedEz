@@ -37,7 +37,7 @@ function EventList(filteredEvents) {
         {filteredEvents.events.map((event) => (
           <div key={event._id} style={styles.eventBox}>
             <Link to={`/event/${event._id}`} style={styles.link}>
-              <strong>{event.event_name}</strong> - {formatDate(event.start_datetime)}
+            <span style={{ fontWeight: 'bold' }}>{event.event_name}</span> - {formatDate(event.start_datetime)}
             </Link>
           </div>
         ))}

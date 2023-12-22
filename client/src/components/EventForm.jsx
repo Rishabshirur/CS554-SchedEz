@@ -88,6 +88,16 @@ function EventForm() {
       setErrorMessage('End date must be strictly greater than start date.');
       return;
     }
+
+    if (new Date(startDateTime) < new Date()) {
+      setErrorMessage('Start date cannot be before Current Date & Time');
+      return;
+    }
+
+    if (new Date(endDateTime) < new Date()) {
+      setErrorMessage('End date cannot be before Current Time');
+      return;
+    }
   }
   catch(e){
     console.log(e)

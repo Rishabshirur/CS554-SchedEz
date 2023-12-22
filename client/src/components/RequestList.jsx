@@ -32,20 +32,20 @@ const RequestList = () => {
         <div style={styles.container}>
           {requests.map((request) => (
             <div key={request._id} style={styles.listItem}>
-              <strong>Status:</strong> {request.status}
+              <span style={{ fontWeight: 'bold' }}>Status:</span> {request.status}
               <br />
-              <strong>Event Name:</strong> {request.event.event_name}
+              <span style={{ fontWeight: 'bold' }}>Event Name:</span> {request.event.event_name}
               <br />
-              <strong>Start Date:</strong> {new Date(request.event.start_datetime).toLocaleString()}
+              <span style={{ fontWeight: 'bold' }}>Start Date:</span> {new Date(request.event.start_datetime).toLocaleString()}
               <br />
-              <strong>End Date:</strong> {new Date(request.event.end_datetime).toLocaleString()}
+              <span style={{ fontWeight: 'bold' }}>End Date:</span> {new Date(request.event.end_datetime).toLocaleString()}
               {isSentRequests ? (
                 <div>
-                  <strong>Sent to:</strong> {request.receiver_email}
+                  <span style={{ fontWeight: 'bold' }}>Sent to:</span> {request.receiver_email}
                 </div>
               ) : (
                 <div>
-                  <strong>Received from:</strong> {request.sender_email}
+                  <span style={{ fontWeight: 'bold' }}>Received from:</span>{request.sender_email}
                 </div>
               )}
             </div>

@@ -141,14 +141,14 @@ input {
   border-color: #282c34;
 }
 
-.button-home {
+/* .button-home {
   background: 'blue';
   color: 'white';
   padding: '10px 20px';
   border: 'none';
   cursor: 'pointer';
   margin: '10px';
-}
+} */
 
 .card {
   box-shadow: 0 4px 8px 0 rgba(250, 243, 243, 0.2), 0 6px 20px 0 rgba(172, 143, 143, 0.19);

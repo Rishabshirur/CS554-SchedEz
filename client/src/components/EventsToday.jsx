@@ -57,7 +57,7 @@ function EventsToday() {
         {events.map((event) => (
           <li key={event._id} style={styles.eventBox}>
             <Link to={`/event/${event._id}`} style={styles.link}>
-              <strong>{event.event_name}</strong> - {formatDate(event.start_datetime)} to{' '}
+            <span style={{ fontWeight: 'bold' }}>{event.event_name}</span> - {formatDate(event.start_datetime)} to{' '}
               {formatDate(event.end_datetime)}
             </Link>
           </li>

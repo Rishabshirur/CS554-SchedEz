@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  my-server-service:
+  server:
     restart: on-failure
     build: 
       context: ./server
@@ -8,10 +8,10 @@ services:
     ports:
       - '3000:3000'
   
-  my-frontend-service:
+  client:
     restart: on-failure
     build: ./client
     ports:
       - '5173:5173'
     depends_on:
-      - my-server-service
+      - server
